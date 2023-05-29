@@ -1,15 +1,3 @@
-/*!
-  =========================================================
-  * Muse Ant Design Dashboard - v1.0.0
-  =========================================================
-  * Product Page: https://www.creative-tim.com/product/muse-ant-design-dashboard
-  * Copyright 2021 Creative Tim (https://www.creative-tim.com)
-  * Licensed under MIT (https://github.com/creativetimofficial/muse-ant-design-dashboard/blob/main/LICENSE.md)
-  * Coded by Creative Tim
-  =========================================================
-  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 // import { useState } from "react";
 import { Menu, Button } from "antd";
 import { NavLink, useLocation } from "react-router-dom";
@@ -182,32 +170,58 @@ function Sidenav({ color }) {
           </NavLink>
         </Menu.Item>
         <Menu.Item key="2">
-          <NavLink to="/tables">
+          <NavLink to="/partners">
             <span
               className="icon"
               style={{
-                background: page === "tables" ? color : "",
+                background: page === "partners" ? color : "",
               }}
             >
               {tables}
             </span>
-            <span className="label">Tables</span>
+            <span className="label">Partners</span>
           </NavLink>
         </Menu.Item>
         <Menu.Item key="3">
-          <NavLink to="/billing">
+          <NavLink to="/program">
             <span
               className="icon"
               style={{
-                background: page === "billing" ? color : "",
+                background: page === "program" ? color : "",
               }}
             >
               {billing}
             </span>
-            <span className="label">Billing</span>
+            <span className="label">Program</span>
           </NavLink>
         </Menu.Item>
         <Menu.Item key="4">
+          <NavLink to="/level">
+            <span
+              className="icon"
+              style={{
+                background: page === "level" ? color : "",
+              }}
+            >
+              {billing}
+            </span>
+            <span className="label">Level</span>
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="5">
+          <NavLink to="/about">
+            <span
+              className="icon"
+              style={{
+                background: page === "about" ? color : "",
+              }}
+            >
+              {billing}
+            </span>
+            <span className="label">About</span>
+          </NavLink>
+        </Menu.Item>
+        {/* <Menu.Item key="4">
           <NavLink to="/rtl">
             <span
               className="icon"
@@ -219,11 +233,11 @@ function Sidenav({ color }) {
             </span>
             <span className="label">RTL</span>
           </NavLink>
-        </Menu.Item>
-        <Menu.Item className="menu-item-header" key="5">
+        </Menu.Item> */}
+        <Menu.Item className="menu-item-header" key="6">
           Account Pages
         </Menu.Item>
-        <Menu.Item key="6">
+        {/* <Menu.Item key="5">
           <NavLink to="/profile">
             <span
               className="icon"
@@ -235,7 +249,7 @@ function Sidenav({ color }) {
             </span>
             <span className="label">Profile</span>
           </NavLink>
-        </Menu.Item>
+        </Menu.Item> */}
         <Menu.Item key="7">
           <NavLink to="/sign-in">
             <span className="icon">{signin}</span>
@@ -249,7 +263,7 @@ function Sidenav({ color }) {
           </NavLink>
         </Menu.Item>
       </Menu>
-      <div className="aside-footer">
+      {/* <div className="aside-footer">
         <div
           className="footer-box"
           style={{
@@ -265,7 +279,7 @@ function Sidenav({ color }) {
             DOCUMENTATION
           </Button>
         </div>
-      </div>
+      </div> */}
     </>
   );
 }

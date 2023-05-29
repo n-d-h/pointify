@@ -30,9 +30,11 @@ function App() {
         <Route path="/sign-in" exact component={SignIn} />
         <Main>
           <Route exact path="/dashboard" component={Home} />
-          <Route exact path="/tables" component={Tables} />
-          <Route exact path="/billing" component={Billing} />
-          <Route exact path="/rtl" component={Rtl} />
+          <Route exact path="/partners" component={Tables} />
+          <Route exact path="/program" component={Billing} />
+          <Route exact path="/level" component={Tables} />
+          <Route exact path="/about" component={Profile} />
+          {/* <Route exact path="/rtl" component={Rtl} /> */}
           <Route exact path="/profile" component={Profile} />
           <Redirect from="*" to="/dashboard" />
         </Main>
