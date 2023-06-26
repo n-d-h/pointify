@@ -19,35 +19,6 @@ import "./assets/styles/responsive.css";
 
 function App() {
 
-  // const { setIsLogin, setId } = useContext(LoginContext);
-  // const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   var token = storageService.getAccessToken();
-  //   // const tokenDecode = jwtDecode(token);
-  //   // console.log(convertTimestampToDate(tokenDecode.exp));
-  //   if (token) {
-  //     const tokenDecode = jwtDecode(token);
-  //     const currentTime = Math.floor(Date.now() / 1000);
-  //     // const currentTime = new Date();
-  //     if (currentTime > tokenDecode.exp) {
-  //       storageService.removeAccessToken();
-  //       setIsLogin(false);
-  //       navigate('/sign-in');
-  //     }
-  //     else {
-  //       setIsLogin(true);
-  //       token = jwtDecode(token);
-  //       console.log(token);
-  //       // setId(id);
-  //     }
-  //   } else {
-  //     setIsLogin(false);
-  //     navigate('/sign-in');
-  //   }
-  // }, [])
-
-
   return (
     <div className="App">
       <BrowserRouter>
