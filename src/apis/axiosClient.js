@@ -2,7 +2,7 @@ import axios from "axios";
 import storageService from "./storage";
 
 const axiosClient = axios.create({
-  baseURL: 'https://swd-back-end.azurewebsites.net/partner/api/',
+  baseURL: 'https://swd-back-end.azurewebsites.net/',
 });
 
 // // Add a request interceptor
@@ -23,7 +23,7 @@ axiosClient.interceptors.request.use(async (currentConfig) => {
   const accessToken = storageService.getAccessToken();
   if (accessToken) {
     customHeaders['Authorization'] = 'Bearer ' + accessToken;
-  }
+  } 
 
   return {
     ...currentConfig,

@@ -1,14 +1,3 @@
-/*!
-=========================================================
-* Muse Ant Design Dashboard - v1.0.0
-=========================================================
-* Product Page: https://www.creative-tim.com/product/muse-ant-design-dashboard
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/muse-ant-design-dashboard/blob/main/LICENSE.md)
-* Coded by Creative Tim
-=========================================================
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 import {
   Row,
   Col,
@@ -21,10 +10,16 @@ import {
   Button,
   Avatar,
   Typography,
+  Input,
+  Tag,
+  Modal
 } from "antd";
 
-import { ToTopOutlined } from "@ant-design/icons";
+import { ToTopOutlined, DeleteTwoTone } from "@ant-design/icons";
 import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import memberApi from "../apis/memberApi";
+
 
 // Images
 import ava1 from "../assets/images/logo-shopify.svg";
@@ -41,6 +36,7 @@ import face6 from "../assets/images/face-6.jpeg";
 import pencil from "../assets/images/pencil.svg";
 
 const { Title } = Typography;
+const { Search } = Input;
 
 const formProps = {
   name: "file",
@@ -62,287 +58,39 @@ const formProps = {
 // table code start
 const columns = [
   {
-    title: "AUTHOR",
-    dataIndex: "name",
-    key: "name",
+    title: "PROGRAM",
+    dataIndex: "program",
+    key: "program",
     width: "32%",
   },
   {
-    title: "FUNCTION",
-    dataIndex: "function",
-    key: "function",
-  },
-
-  {
-    title: "STATUS",
-    key: "status",
-    dataIndex: "status",
+    title: "CUSTOMER",
+    dataIndex: "customer",
+    key: "customer",
   },
   {
-    title: "EMPLOYED",
-    key: "employed",
-    dataIndex: "employed",
+    title: "TOTAL",
+    dataIndex: "total",
+    key: "total",
   },
+  {
+    title: "DATECREATED",
+    key: "datecreated",
+    dataIndex: "datecreated",
+  },
+  {
+    title: "STATE",
+    key: "state",
+    dataIndex: "state",
+  },
+  {
+    title: "",
+    key: "detail",
+    dataIndex: "detail",
+    width: "18%",
+  }
 ];
 
-const data = [
-  {
-    key: "1",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face2}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>Michael John</Title>
-            <p>michael@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Manager</Title>
-          <p>Organization</p>
-        </div>
-      </>
-    ),
-
-    status: (
-      <>
-        <Button type="primary" className="tag-primary">
-          ONLINE
-        </Button>
-      </>
-    ),
-    employed: (
-      <>
-        <div className="ant-employed">
-          <span>23/04/18</span>
-          <a href="#pablo">Edit</a>
-        </div>
-      </>
-    ),
-  },
-
-  {
-    key: "2",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face3}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>Alexa Liras</Title>
-            <p>alexa@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Programator</Title>
-          <p>Developer</p>
-        </div>
-      </>
-    ),
-
-    status: (
-      <>
-        <Button className="tag-badge">ONLINE</Button>
-      </>
-    ),
-    employed: (
-      <>
-        <div className="ant-employed">
-          <span>23/12/20</span>
-          <a href="#pablo">Edit</a>
-        </div>
-      </>
-    ),
-  },
-
-  {
-    key: "3",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>Laure Perrier</Title>
-            <p>laure@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Executive</Title>
-          <p>Projects</p>
-        </div>
-      </>
-    ),
-
-    status: (
-      <>
-        <Button type="primary" className="tag-primary">
-          ONLINE
-        </Button>
-      </>
-    ),
-    employed: (
-      <>
-        <div className="ant-employed">
-          <span>03/04/21</span>
-          <a href="#pablo">Edit</a>
-        </div>
-      </>
-    ),
-  },
-  {
-    key: "4",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face4}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>Miriam Eric</Title>
-            <p>miriam@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Marketing</Title>
-          <p>Organization</p>
-        </div>
-      </>
-    ),
-
-    status: (
-      <>
-        <Button type="primary" className="tag-primary">
-          ONLINE
-        </Button>
-      </>
-    ),
-    employed: (
-      <>
-        <div className="ant-employed">
-          <span>03/04/21</span>
-          <a href="#pablo">Edit</a>
-        </div>
-      </>
-    ),
-  },
-  {
-    key: "5",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face5}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>Richard Gran</Title>
-            <p>richard@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Manager</Title>
-          <p>Organization</p>
-        </div>
-      </>
-    ),
-
-    status: (
-      <>
-        <Button className="tag-badge">ONLINE</Button>
-      </>
-    ),
-    employed: (
-      <>
-        <div className="ant-employed">
-          <span>23/03/20</span>
-          <a href="#pablo">Edit</a>
-        </div>
-      </>
-    ),
-  },
-
-  {
-    key: "6",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face6}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>John Levi</Title>
-            <p>john@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Tester</Title>
-          <p>Developer</p>
-        </div>
-      </>
-    ),
-
-    status: (
-      <>
-        <Button className="tag-badge">ONLINE</Button>
-      </>
-    ),
-    employed: (
-      <>
-        <div className="ant-employed">
-          <span>14/04/17</span>
-          <a href="#pablo">Edit</a>
-        </div>
-      </>
-    ),
-  },
-];
-// project table start
 const project = [
   {
     title: "COMPANIES",
@@ -586,8 +334,85 @@ const dataproject = [
   },
 ];
 
-function Tables() {
-  const onChange = (e) => console.log(`radio checked:${e.target.value}`);
+function MemberShips() {
+  const [listMembers, setListMembers] = useState([]);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("dateCreated,asc");
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);  
+  const [visible, setVisible] = useState(false);
+
+  const fetchMembers = async () => {
+    try {
+      setLoading(true);
+      await memberApi.getAll({ search: search, sort: sort, page: page - 1 })
+        .then((res) => {
+          console.log(res.data);
+          setListMembers(res.data.content);
+          setTotal(res.data.totalElements);
+          setLoading(false);
+        })
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMembers();
+  }, [search, sort, page]);
+
+  const data = listMembers.map((member) => {
+    return {
+      key: member.id,
+      program: (
+        <>
+          <Title level={5}>{member.programName}</Title>
+        </>
+      ),
+      customer: (
+        <>
+          <div className="author-info">
+            <Title level={5}>{member.customerName}</Title>
+            <p>{member.level}</p>
+          </div>
+        </>
+      ),
+
+      total: (
+        <>
+          <div className="author-info">
+            <span>Receipt: <p style={{ color: "#06a806", display: "inline-block" }}>{member.totalReceipt}</p></span>
+            <br />
+            <span>Expenditure: <p style={{ color: "red", display: "inline-block" }}>{member.totalExpenditure}</p></span>
+          </div>
+        </>
+      ),
+      datecreated: (
+        <>
+          <span>{member.dateCreated}</span>
+        </>
+      ),
+      state: (
+        <>
+          <Tag color={member.state ? "blue" : "red"}>{member.state ? "ACTIVE" : "INACTIVE"}</Tag>
+        </>
+      ),
+      detail: (
+        <>
+          <Button style={{ marginRight: 20 }} type="link">View Customers</Button>
+        </>
+      ),
+    }
+  })
+
+  const onSearch = (value) => setSearch(value);
+
+  const onChange = (e) => {
+    console.log(`radio checked:${e.target.value}`)
+    setSort(e.target.value);
+  };
+
 
   return (
     <>
@@ -597,21 +422,36 @@ function Tables() {
             <Card
               bordered={false}
               className="criclebox tablespace mb-24"
-              title="Authors Table"
+              title="Memberships Table"
               extra={
-                <>
-                  <Radio.Group onChange={onChange} defaultValue="a">
-                    <Radio.Button value="a">All</Radio.Button>
-                    <Radio.Button value="b">ONLINE</Radio.Button>
-                  </Radio.Group>
-                </>
+                <div style={{ display: "flex" }}>
+                  <div style={{ marginRight: 30 }}>
+                    <Radio.Group onChange={onChange} defaultValue="dateCreated,asc">
+                      {/* <Radio.Button value="id,asc">All</Radio.Button> */}
+                      <Radio.Button value="dateCreated,asc">Oldest</Radio.Button>
+                      <Radio.Button value="dateCreated,desc">Latest</Radio.Button>
+                    </Radio.Group>
+                  </div>
+
+                  <div style={{ marginRight: 20 }}>
+                    <Search
+                      placeholder="input search text"
+                      allowClear
+                      enterButton="Search"
+                      size="default"
+                      onSearch={onSearch}
+                    />
+                  </div>
+                </div>
               }
             >
               <div className="table-responsive">
                 <Table
                   columns={columns}
                   dataSource={data}
-                  pagination={false}
+                  loading={loading}
+                  pagination={{ position: ["bottomCenter"], pageSize: 10, current: page, total: total }}
+                  onChange={(pagination) => setPage(pagination.current)}
                   className="ant-border-space"
                 />
               </div>
@@ -620,14 +460,14 @@ function Tables() {
             <Card
               bordered={false}
               className="criclebox tablespace mb-24"
-              title="Projects Table"
+              title="Customers Table"
               extra={
                 <>
-                  <Radio.Group onChange={onChange} defaultValue="all">
+                  {/* <Radio.Group onChange={onChange} defaultValue="all">
                     <Radio.Button value="all">All</Radio.Button>
                     <Radio.Button value="online">ONLINE</Radio.Button>
                     <Radio.Button value="store">STORES</Radio.Button>
-                  </Radio.Group>
+                  </Radio.Group> */}
                 </>
               }
             >
@@ -658,4 +498,4 @@ function Tables() {
   );
 }
 
-export default Tables;
+export default MemberShips;

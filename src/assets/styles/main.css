@@ -19,6 +19,10 @@ body {
   font-weight: 400;
   font-family: open sans, Helvetica, Arial, sans-serif;
 }
+.ant-input-affix-wrapper {
+  padding: 0px 10px;
+}
+
 .ant-layout.ant-layout-has-sider {
   flex-direction: row;
 }
