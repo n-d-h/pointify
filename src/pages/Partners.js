@@ -424,7 +424,7 @@ function Partners() {
               className="shape-avatar"
               shape="square"
               size={40}
-              src={face2}
+              src={partner.image}
             ></Avatar>
             <div className="avatar-info">
               <Title level={5}>{partner.userName}</Title>
@@ -565,7 +565,7 @@ function Partners() {
 
       <Modal
         title={
-            <h2 style={{ color: "gray", fontWeight: "bold" }}>Partner Details</h2>
+          <h2 style={{ color: "gray", fontWeight: "bold" }}>Partner Details</h2>
         }
         visible={open}
         onOk={handleOk}
@@ -587,42 +587,215 @@ function Partners() {
           )),
         ]}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "stretch",
-            alignItems: "center",
-          }}>
-
+        <>
           <div
             style={{
-              marginRight: 30,
-              color: "gray",
-              fontSize: 18,
-              textAlign: "right",
-              marginRight: 30,
-              marginLeft: 10,
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
             }}>
-            <p>User Name :</p>
-            <p>Full Name :</p>
+
+            <div
+              style={{
+                width: 80,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>User Name :</p>
+              {/* <p>Full Name :</p>
             <p>Code :</p>
             <p>Phone :</p>
             <p>Email :</p>
             <p>Customers :</p>
             <p>Programs :</p>
-            <p>Address :</p>
-          </div>
-          <div style={{ fontSize: 18 }}>
-            <p>{details?.partner?.userName}</p>
-            <p>{details?.partner?.fullName}</p>
+            <p>Address :</p> */}
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.partner?.userName}</p>
+              {/* <p>{details?.partner?.fullName}</p>
             <p>{details?.partner?.code}</p>
             <p>{details?.partner?.phone}</p>
             <p>{details?.partner?.email}</p>
             <p>{details?.partner?.address}</p>
             <p>{details?.numOfCustomers}</p>
-            <p>{details?.programList && details.programList.length || 0}</p>
+            <p>{details?.programList && details.programList.length || 0}</p> */}
+            </div>
+
           </div>
-        </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 80,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Full Name :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.partner?.fullName}</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 80,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Code :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.partner?.code}</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 80,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Phone :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.partner?.phone}</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 80,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Email :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.partner?.email}</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "flex-start",
+            }}>
+
+            <div
+              style={{
+                width: 80,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p style={{ width: 80 }}>Address :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.partner?.address}</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 80,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Customers :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.numOfCustomers}</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 80,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Programs :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.programList && details.programList.length || 0}</p>
+            </div>
+          </div>
+
+        </>
       </Modal>
     </>
   );

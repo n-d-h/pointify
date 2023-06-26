@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useLayoutEffect } from "react";
 
 import {
   Row,
@@ -254,7 +254,7 @@ function Header({
   const [sidenavType, setSidenavType] = useState("transparent");
   const { username } = useContext(LoginContext);
 
-  useEffect(() => window.scrollTo(0, 0));
+  useLayoutEffect(() => { window.scrollTo(0, 0) }, [username]);
 
   const showDrawer = () => setVisible(true);
   const hideDrawer = () => setVisible(false);
@@ -414,7 +414,7 @@ function Header({
           </Drawer> */}
           <Link to="/sign-in" className="btn-sign-in">
             {profile}
-            {username ? <span>Sign in</span> : <span>{username}</span>}
+            {username ? <span>{username}</span> : <span>Sign in</span>}
           </Link>
           {/* <Input
             className="header-search"

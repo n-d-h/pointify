@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useLayoutEffect } from "react";
 import GoogleButton from "react-google-button";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -111,36 +111,52 @@ const signin = [
 ];
 function SignIn() {
 
-  const { googleSignIn, logout, user, error, setError } = useContext(AuthContext);
+  const { googleSignIn, logout, user, error, setError, invalid } = useContext(AuthContext);
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const { isLogin, setIsLogin, setId } = useContext(LoginContext);
+  const { setIsLoggingIn, username } = useContext(LoginContext);
   const navigate = useNavigate();
 
   useEffect(() => {
 
-    if (error) {
+    if (error || invalid) {
       navigate("/sign-in");
       setError(null);
     }
 
     if (user.email) {
-      console.log(isLogin);
-      // if (!isLogin) {
-      //   authenApi.signIn({ email: user.email }).then((res) => {
-      //     if (res.status === 200) {
-      //       console.log(res.data);
-      //       //     // setId(res.data.id);
-      //       //     // setIsLogin(true);
-      //       //     // navigate("/dashboard");
-      //     }
-      //   });
-      // }
-      setIsSignedIn(true);
-      console.log("sign in");
+      console.log('user checked');
+      let token = storageService.getAccessToken();
+      if (token !== null) {
+        const tokenDecode = jwtDecode(token);
+        const currentTime = Math.floor(Date.now() / 1000);
+        console.log('token checked');
+
+        if (currentTime > tokenDecode.exp) {
+          storageService.removeAccessToken();
+          setIsLoggingIn(false);
+          setIsSignedIn(false);
+          handleSignOut();
+        }
+        else {
+          setIsLoggingIn(false);
+          setIsSignedIn(true);
+          console.log('fire base user', user.email);
+          console.log('already signed in');
+
+        }
+      } else {
+        // handleSignOut();
+        console.log('begin to set token');
+        setIsSignedIn(true);
+        setIsLoggingIn(true);
+        handleGoogleSignIn();
+      }
+
     } else {
+      setIsLoggingIn(false);
       setIsSignedIn(false);
     }
-  }, [user.email, error]);
+  }, [user.email, error, username, invalid]);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -211,9 +227,12 @@ function SignIn() {
               </div>)}
               {isSignedIn && (
                 <>
-                  <p>Welcome:{' '}{user.email}</p>
-                  <button onClick={handleSignOut}>Logout</button>
+                  <p style={{ fontSize: "18px", fontWeight: "bold" }}>Welcome:{' '}{username}</p>
+                  <Button type="primary" danger onClick={handleSignOut}>Logout</Button>
                 </>
+              )}
+              {invalid && (
+                <p style={{ color: "red" }}>This Google account do not have any authorization!</p>
               )}
             </Col>
             <Col
@@ -264,7 +283,7 @@ function SignIn() {
           </Menu>
           <p className="copyright">
             {" "}
-            Copyright © 2021 Muse by <a href="#pablo">Creative Tim</a>.{" "}
+            Copyright © 2023 Muse by <a href="#pablo">Creative SWD</a>.{" "}
           </p>
         </Footer>
       </Layout>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useLayoutEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Layout, Drawer, Affix } from "antd";
 import Sidenav from "./Sidenav";
@@ -29,50 +29,34 @@ function Main() {
     }
   };
 
+  let token = storageService.getAccessToken();
   useEffect(() => {
-    var token = storageService.getAccessToken();
-    // const tokenDecode = jwtDecode(token);
-    // console.log(convertTimestampToDate(tokenDecode.exp));
     if (token !== null) {
       const tokenDecode = jwtDecode(token);
       const currentTime = Math.floor(Date.now() / 1000);
-      // const currentTime = new Date();
+
       if (currentTime > tokenDecode.exp) {
         storageService.removeAccessToken();
         setIsLogin(false);
-        if (user.name) {
+        // if (user.email) {
           handleSignOut();
-        }
+        // }
         navigate('/sign-in');
       }
       else {
         setIsLogin(true);
-        console.log('helo');
-        // token = jwtDecode(token);
-        // console.log(token);
-      //   authenApi.signIn(user.email).then((res) => {
-      //     // console.log(res);
-      //     if (res.data.adminDTO !== null && res.data.partnerDTO === null){
-      //         setId(res.data.adminDTO.id);
-      //         setUsername(res.data.adminDTO.userName);
-      //         console.log(res.data.adminDTO.id);
-      //         navigate('/dashboard');
-      //     } else {
-      //       navigate('/sign-in');
-      //     }
-      // }
-      // ).catch((error) => {
-      //     console.log(error);
-      // });
+        console.log('hello', user.email);
+        console.log('login main', isLogin);
       }
     } else {
-      if (user.name) {
+      // if (user.email) {
+        // console.log('hello', user.email);
         handleSignOut();
-      }
+      // }
       setIsLogin(false);
       navigate('/sign-in');
     }
-  }, [isLogin, user.name])
+  }, [token]);
 
 
   const [visible, setVisible] = useState(false);
