@@ -238,9 +238,9 @@ function Header({
 
   const [visible, setVisible] = useState(false);
   const [sidenavType, setSidenavType] = useState("transparent");
-  const { admin } = useContext(LoginContext);
+  const { admin, isLogin } = useContext(LoginContext);
 
-  useEffect(() => { window.scrollTo(0, 0) }, [admin]);
+  useEffect(() => { window.scrollTo(0, 0) }, [admin, isLogin]);
 
   const showDrawer = () => setVisible(true);
   const hideDrawer = () => setVisible(false);

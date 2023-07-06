@@ -1,25 +1,22 @@
-/*!
-  =========================================================
-  * Muse Ant Design Dashboard - v1.0.0
-  =========================================================
-  * Product Page: https://www.creative-tim.com/product/muse-ant-design-dashboard
-  * Copyright 2021 Creative Tim (https://www.creative-tim.com)
-  * Licensed under MIT (https://github.com/creativetimofficial/muse-ant-design-dashboard/blob/main/LICENSE.md)
-  * Coded by Creative Tim
-  =========================================================
-  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import {
   Row,
   Col,
   Card,
   Statistic,
   Button,
-  List,
+  Pagination,
   Descriptions,
   Avatar,
+  Badge,
+  Checkbox,
+  Input,
+  Select
 } from "antd";
+
+import { useDebounce } from "use-debounce";
+import React, { useState, useEffect } from "react";
+import programApi from "../apis/programApi";
+import partnerApi from "../apis/partnerApi";
 
 import { PlusOutlined, ExclamationOutlined } from "@ant-design/icons";
 import mastercard from "../assets/images/mastercard-logo.png";
@@ -160,17 +157,17 @@ function Programs() {
       width="20"
       height="20"
       viewBox="0 0 20 20"
-      fill="none"
+      fill="#1890ff"
       xmlns="http://www.w3.org/2000/svg"
       key={0}
     >
       <path
         d="M13.5858 3.58579C14.3668 2.80474 15.6332 2.80474 16.4142 3.58579C17.1953 4.36683 17.1953 5.63316 16.4142 6.41421L15.6213 7.20711L12.7929 4.37868L13.5858 3.58579Z"
-        className="fill-gray-7"
+      // className="ant-btn-primary"
       ></path>
       <path
         d="M11.3787 5.79289L3 14.1716V17H5.82842L14.2071 8.62132L11.3787 5.79289Z"
-        className="fill-gray-7"
+      // className="ant-btn-primary"
       ></path>
     </svg>,
   ];
@@ -317,172 +314,103 @@ function Programs() {
       amountcolor: "text-warning-b",
     },
   ];
+  const { Search } = Input;
+  const [selectedValue, setSelectedValue] = useState(null);
+  const [programs, setPrograms] = useState([]);
+  const [current, setCurrent] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [filter, setFilter] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchPrograms = async () => {
+    setLoading(true);
+    try {
+      await programApi.getAll({ sort: 'dateUpdated,desc', limit: 4, page: current - 1 })
+        .then((res) => {
+          setLoading(false);
+          setPrograms(res.data.content);
+          setTotal(res.data.totalElements);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchFilter = async () => {
+    try {
+      await partnerApi.getAll({ sort: 'id,asc', limit: 1000 })
+        .then((res) => {
+          setFilter(res.data.content);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchPrograms();
+    fetchFilter();
+  }, [current]);
+
+  const onChange = (checkedValues) => {
+    if (checkedValues.length > 0) {
+      setSelectedValue(checkedValues[0]);
+    } else {
+      setSelectedValue(null);
+    }
+  };
+
+  const onSearch = (value) => console.log(value);
+
+  const options = [];
+  for (let i of filter) {
+    options.push({
+      label: i.fullName,
+      value: i.fullName,
+    });
+  }
+  const handleChange = (value) => {
+    console.log(`selected ${value}`);
+  };
 
   return (
     <>
-      {/* <Row gutter={[24, 0]}>
-        <Col xs={24} md={16}>
-          <Row gutter={[24, 0]}>
-            <Col xs={24} xl={12} className="mb-24">
-              <Card
-                title={wifi}
-                bordered={false}
-                className="card-credit header-solid h-ful"
-              >
-                <h5 className="card-number">4562 1122 4594 7852</h5>
-
-                <div className="card-footer">
-                  <div className="mr-30">
-                    <p>Card Holder</p>
-                    <h6>Jack Peterson</h6>
-                  </div>
-                  <div className="mr-30">
-                    <p>Expires</p>
-                    <h6>11/22</h6>
-                  </div>
-                  <div className="card-footer-col col-logo ml-auto">
-                    <img src={mastercard} alt="mastercard" />
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xs={12} xl={6} className="mb-24">
-              <Card bordered={false} className="widget-2 h-full">
-                <Statistic
-                  title={
-                    <>
-                      <div className="icon">{angle}</div>
-                      <h6>Salary</h6>
-                      <p>Belong Interactive</p>
-                    </>
-                  }
-                  value={"$2,000"}
-                  prefix={<PlusOutlined />}
-                />
-              </Card>
-            </Col>
-            <Col xs={12} xl={6} className="mb-24">
-              <Card bordered={false} className="widget-2 h-full">
-                <Statistic
-                  title={
-                    <>
-                      <div className="icon">
-                        <img src={paypal} alt="paypal" />
-                      </div>
-                      <h6>Paypal</h6>
-                      <p>Freelance Paymente</p>
-                    </>
-                  }
-                  value={"$49,000"}
-                  prefix={<PlusOutlined />}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} className="mb-24">
-              <Card
-                className="header-solid h-full ant-card-p-0"
-                title={
-                  <>
-                    <Row
-                      gutter={[24, 0]}
-                      className="ant-row-flex ant-row-flex-middle"
-                    >
-                      <Col xs={24} md={12}>
-                        <h6 className="font-semibold m-0">Payment Methods</h6>
-                      </Col>
-                      <Col xs={24} md={12} className="d-flex">
-                        <Button type="primary">ADD NEW CARD</Button>
-                      </Col>
-                    </Row>
-                  </>
-                }
-              >
-                <Row gutter={[24, 0]}>
-                  <Col span={24} md={12}>
-                    <Card className="payment-method-card">
-                      <img src={mastercard} alt="mastercard" />
-                      <h6 className="card-number">**** **** **** 7362</h6>
-                      <Button type="link" className="ant-edit-link">
-                        {pencil}
-                      </Button>
-                    </Card>
-                  </Col>
-                  <Col span={24} md={12}>
-                    <Card className="payment-method-card">
-                      <img src={visa} alt="visa" />
-                      <h6 className="card-number">**** **** **** 3288</h6>
-                      <Button type="link" className="ant-edit-link">
-                        {pencil}
-                      </Button>
-                    </Card>
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
-          </Row>
-        </Col>
-        <Col span={24} md={8} className="mb-24">
-          <Card
-            bordered={false}
-            className="header-solid h-full ant-invoice-card"
-            title={[<h6 className="font-semibold m-0">Invoices</h6>]}
-            extra={[
-              <Button type="primary">
-                <span>VIEW ALL</span>
-              </Button>,
-            ]}
-          >
-            <List
-              itemLayout="horizontal"
-              className="invoice-list"
-              dataSource={data}
-              renderItem={(item) => (
-                <List.Item
-                  actions={[<Button type="link">{download} PDF</Button>]}
-                >
-                  <List.Item.Meta
-                    title={item.title}
-                    description={item.description}
-                  />
-                  <div className="amount">{item.amount}</div>
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
-      </Row> */}
       <Row gutter={[24, 0]}>
         <Col span={24} md={16} className="mb-24">
           <Card
             className="header-solid h-full"
             bordered={false}
-            title={[<h6 className="font-semibold m-0">Billing Information</h6>]}
+            title={[<h6 className="font-semibold m-0">Programs Information</h6>]}
             bodyStyle={{ paddingTop: "0" }}
+            loading={loading}
+            extra={
+              <Pagination simple current={current} total={total} onChange={(e) => setCurrent(e)} />
+            }
           >
             <Row gutter={[24, 24]}>
-              {information.map((i, index) => (
+              {programs?.map((program, index) => (
                 <Col span={24} key={index}>
                   <Card className="card-billing-info" bordered="false">
                     <div className="col-info">
-                      <Descriptions title="Oliver Liam">
-                        <Descriptions.Item label="Company Name" span={3}>
-                          Viking Burrito
+                      <Descriptions title={program?.programName}>
+                        <Descriptions.Item label="Date Created" span={3}>
+                          {program?.dateCreated}
                         </Descriptions.Item>
-
-                        <Descriptions.Item label="Email Address" span={3}>
-                          oliver@burrito.com
+                        <Descriptions.Item label="Last Update" span={3}>
+                          {program?.dateUpdated}
                         </Descriptions.Item>
-                        <Descriptions.Item label="VAT Number" span={3}>
-                          FRB1235476
+                        <Descriptions.Item span={3}>
+                          <Badge
+                            style={{ color: program?.state ? '#8c8c8c' : '#d9d9d9' }}
+                            status={`${program?.state ? 'success' : 'default'}`}
+                            text={`${program?.state ? 'ACTIVE' : 'INACTIVE'}`}
+                          />
                         </Descriptions.Item>
                       </Descriptions>
                     </div>
                     <div className="col-action">
-                      <Button type="link" danger>
-                        {deletebtn}DELETE
-                      </Button>
-                      <Button type="link" className="darkbtn">
-                        {pencil} EDIT
+                      <Button type="link" className="ant-btn-primary">
+                        {pencil} DETAIL
                       </Button>
                     </div>
                   </Card>
@@ -496,59 +424,67 @@ function Programs() {
             bordered={false}
             bodyStyle={{ paddingTop: 0 }}
             className="header-solid h-full  ant-list-yes"
-            title={<h6 className="font-semibold m-0">Your Transactions</h6>}
+            title={<h6 className="font-semibold m-0">Search Programs</h6>}
             extra={
               <p className="card-header-date">
                 {calender}
-                <span>23 - 30 March 2021</span>
+                <span>programs</span>
               </p>
             }
           >
-            <List
-              header={<h6>NEWEST</h6>}
-              className="transactions-list ant-newest"
-              itemLayout="horizontal"
-              dataSource={newest}
-              renderItem={(item) => (
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar size="small" className={item.textclass}>
-                        {item.avatar}
-                      </Avatar>
-                    }
-                    title={item.title}
-                    description={item.description}
-                  />
-                  <div className="amount">
-                    <span className={item.amountcolor}>{item.amount}</span>
+            <div>
+              <div>
+                <h6 style={{ color: '#bcbaba', marginBottom: 20 }}>Search bar</h6>
+                <Search
+                  placeholder="input search text"
+                  allowClear
+                  enterButton="Search"
+                  size="default"
+                  onSearch={onSearch}
+                />
+              </div>
+              <div style={{ marginTop: 20 }}>
+                <h6 style={{ color: '#bcbaba', marginBottom: 20 }}>Sort</h6>
+                <Checkbox.Group
+                  style={{
+                    width: '100%',
+                  }}
+                  value={selectedValue}
+                  onChange={onChange}
+                >
+                  <div style={{ marginBottom: 20, marginLeft: 50 }}>
+                    <Checkbox value="dateCreated,desc">Recently Created</Checkbox>
                   </div>
-                </List.Item>
-              )}
-            />
-
-            <List
-              className="yestday transactions-list"
-              header={<h6>YESTERDAY</h6>}
-              itemLayout="horizontal"
-              dataSource={yesterday}
-              renderItem={(item) => (
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar size="small" className={item.textclass}>
-                        {item.avatar}
-                      </Avatar>
-                    }
-                    title={item.title}
-                    description={item.description}
-                  />
-                  <div className="amount">
-                    <span className={item.amountcolor}>{item.amount}</span>
+                  <div style={{ marginBottom: 20, marginLeft: 50 }}>
+                    <Checkbox value="dateCreated,asc">Previously Created</Checkbox>
                   </div>
-                </List.Item>
-              )}
-            />
+                  <div style={{ marginBottom: 20, marginLeft: 50 }}>
+                    <Checkbox value="dateUpdated,desc">Recently Updated</Checkbox>
+                  </div>
+                  <div style={{ marginLeft: 50 }}>
+                    <Checkbox value="dateUpdated,asc">Previously Updated</Checkbox>
+                  </div>
+                </Checkbox.Group>
+              </div>
+              <div style={{ marginTop: 20 }}>
+                <h6 style={{ color: '#bcbaba', marginBottom: 20 }}>Filter by partner</h6>
+                <div style={{ marginBottom: 20 }}>
+                  <Select
+                    maxTagCount={20}
+                    size="large"
+                    bordered={false}
+                    mode="multiple"
+                    allowClear
+                    style={{
+                      width: '100%',
+                    }}
+                    placeholder="Please click here to select"
+                    onChange={handleChange}
+                    options={options}
+                  />
+                </div>
+              </div>
+            </div>
           </Card>
         </Col>
       </Row>
