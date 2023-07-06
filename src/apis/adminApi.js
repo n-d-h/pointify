@@ -5,18 +5,18 @@ const adminApi = {
     //     const url = config.baseUrl+ '/users'
     //     return axiosClient.get(url, {params});
     // },
-    getAll() {
-        const url = config.baseUrl + 'admins'
+    getProfile() {
+        const url = 'admin/api/admins/profile'
         return axiosClient.get(url);
     },
     get(id) {
         const url = `/admins/${id}`
         return axiosClient.get(url);
     },
-    // add(data){
-    //     const url = '/users'
-    //     return axiosClient.post(url, data);
-    // },
+    getList(params) {
+        const url = '/admin/api/admins'
+        return axiosClient.get(url, { params });
+    },
     update(data) {
         const url = `/admins/${data.id}`
         return axiosClient.patch(url, data);

@@ -238,9 +238,9 @@ function Header({
 
   const [visible, setVisible] = useState(false);
   const [sidenavType, setSidenavType] = useState("transparent");
-  const { username } = useContext(LoginContext);
+  const { admin } = useContext(LoginContext);
 
-  useLayoutEffect(() => { window.scrollTo(0, 0) }, [username]);
+  useEffect(() => { window.scrollTo(0, 0) }, [admin]);
 
   const showDrawer = () => setVisible(true);
   const hideDrawer = () => setVisible(false);
@@ -291,7 +291,7 @@ function Header({
           
           <Link to="/sign-in" className="btn-sign-in">
             {profile}
-            {username ? <span>{username}</span> : <span>Sign in</span>}
+            {admin ? <span>{admin.userName}</span> : <span>Sign in</span>}
           </Link>
           {/* <Input
             className="header-search"

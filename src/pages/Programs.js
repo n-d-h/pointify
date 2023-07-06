@@ -320,7 +320,7 @@ function Programs() {
 
   return (
     <>
-      <Row gutter={[24, 0]}>
+      {/* <Row gutter={[24, 0]}>
         <Col xs={24} md={16}>
           <Row gutter={[24, 0]}>
             <Col xs={24} xl={12} className="mb-24">
@@ -450,7 +450,7 @@ function Programs() {
             />
           </Card>
         </Col>
-      </Row>
+      </Row> */}
       <Row gutter={[24, 0]}>
         <Col span={24} md={16} className="mb-24">
           <Card

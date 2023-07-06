@@ -24,6 +24,7 @@ import {
   InstagramOutlined,
   GithubOutlined,
 } from "@ant-design/icons";
+import adminApi from "../apis/adminApi";
 function onChange(checked) {
   console.log(`switch to ${checked}`);
 }
@@ -111,68 +112,80 @@ const signin = [
 ];
 function SignIn() {
 
-  const { googleSignIn, logout, user, error, setError, invalid } = useContext(AuthContext);
+  const { googleSignIn, logout, user, error, setError } = useContext(AuthContext);
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const { setIsLoggingIn, username } = useContext(LoginContext);
+  const { isLogin, admin, setIsLogin, setAdmin } = useContext(LoginContext);
+  const [invalid, setInvalid] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const getAccount = async (email) => {
+    try {
+      console.log("acc: ",email);
+      await authenApi.signIn(email)
+      .then((res) => {
+        if (res.data.adminDTO) {
+          console.log(res.data.adminDTO);
+          setIsLogin(true);
+          setIsSignedIn(true);
+          setAdmin(res.data.adminDTO);
+          storageService.setAccessToken(res.data.token);
+        } else {
+          setInvalid(true);
+        }
+      });
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+    
 
-    if (error || invalid) {
+  useEffect(() => {
+    console.log(admin);
+    if (error) {
       navigate("/sign-in");
       setError(null);
     }
-
-    if (user.email) {
-      console.log('user checked');
-      let token = storageService.getAccessToken();
-      if (token !== null) {
-        const tokenDecode = jwtDecode(token);
-        const currentTime = Math.floor(Date.now() / 1000);
-        console.log('token checked');
-
-        if (currentTime > tokenDecode.exp) {
-          storageService.removeAccessToken();
-          setIsLoggingIn(false);
-          setIsSignedIn(false);
-          handleSignOut();
-        }
-        else {
-          setIsLoggingIn(false);
-          setIsSignedIn(true);
-          console.log('fire base user', user.email);
-          console.log('already signed in');
-
-        }
-      } else {
-        // handleSignOut();
-        console.log('begin to set token');
-        setIsSignedIn(true);
-        setIsLoggingIn(true);
-        handleGoogleSignIn();
-      }
-
+    
+    if (isLogin && admin) {
+      setIsSignedIn(true);
     } else {
-      setIsLoggingIn(false);
       setIsSignedIn(false);
     }
-  }, [user.email, error, username, invalid]);
+
+    if (user) {
+      // sign in fire base to get user and call api to get user info
+      getAccount(user.email);
+      // then sign out firebase
+      handleSignOut();
+    }
+
+  }, [isLogin, error, user, admin]);
+
+  
+  const handleSignOut = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleGoogleSignIn = async () => {
     try {
+      setInvalid(false);
       await googleSignIn();
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      await logout();
-      setIsSignedIn(false);
-    } catch (error) {
-      console.log(error);
-    }
+  const onLogout = () => {
+    storageService.removeAccessToken();
+    setIsSignedIn(false);
+    setIsLogin(false);
+    setAdmin(null);
+    setInvalid(false);
   };
   return (
     <>
@@ -184,13 +197,13 @@ function SignIn() {
           <div className="header-col header-nav">
             <Menu mode="horizontal" defaultSelectedKeys={["1"]}>
               <Menu.Item key="1">
-                <Link to="/dashboard">
+                <Link to={`${isLogin ? '/dashboard' : '/sign-in'}`}>
                   {template}
                   <span> Dashboard</span>
                 </Link>
               </Menu.Item>
               <Menu.Item key="2">
-                <Link to="/profile">
+                <Link to={`${isLogin ? '/profile' : '/sign-in'}`}>
                   {profile}
                   <span>Profile</span>
                 </Link>
@@ -227,8 +240,8 @@ function SignIn() {
               </div>)}
               {isSignedIn && (
                 <>
-                  <p style={{ fontSize: "18px", fontWeight: "bold" }}>Welcome:{' '}{username}</p>
-                  <Button type="primary" danger onClick={handleSignOut}>Logout</Button>
+                  <p style={{ fontSize: "18px", fontWeight: "bold" }}>Welcome:{' '}{admin?.userName}</p>
+                  <Button type="primary" danger onClick={onLogout}>Logout</Button>
                 </>
               )}
               {invalid && (

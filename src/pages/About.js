@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 
 import {
   Row,
@@ -9,7 +9,7 @@ import {
   Descriptions,
   Avatar,
   Radio,
-  Switch,
+  Pagination,
   Upload,
   message,
 } from "antd";
@@ -20,6 +20,9 @@ import {
   InstagramOutlined,
   VerticalAlignTopOutlined,
 } from "@ant-design/icons";
+
+import { LoginContext } from "../context/LoginProvider";
+import adminApi from "../apis/adminApi";
 
 import BgProfile from "../assets/images/bg-profile.jpg";
 import profilavatar from "../assets/images/face-1.jpg";
@@ -32,9 +35,37 @@ import project1 from "../assets/images/home-decor-1.jpeg";
 import project2 from "../assets/images/home-decor-2.jpeg";
 import project3 from "../assets/images/home-decor-3.jpeg";
 
+
+
 function About() {
   const [imageURL, setImageURL] = useState(false);
   const [, setLoading] = useState(false);
+  const { admin } = useContext(LoginContext);
+  const [avatar, setAvatar] = useState(null);
+  const [listAdmin, setListAdmin] = useState([]);
+  const [current, setCurrent] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [part, setPart] = useState("a");
+
+  const fetchAdminList = async () => {
+    try {
+      await adminApi.getList({ sort: "id,desc", limit: 5, page: current - 1 })
+        .then((res) => {
+          setListAdmin(res.data.content);
+          setTotal(res.data.totalElements);
+        })
+    } catch (error) {
+      console.log("Failed to fetch admin list: ", error);
+    }
+  };
+
+
+  useEffect(() => {
+    if (admin) {
+      setAvatar(admin.image);
+      fetchAdminList();
+    }
+  }, [admin]);
 
   const getBase64 = (img, callback) => {
     const reader = new FileReader();
@@ -94,33 +125,15 @@ function About() {
     </div>
   );
 
-  const data = [
-    {
-      title: "Sophie B.",
-      avatar: convesionImg,
-      description: "Hi! I need more information…",
-    },
-    {
-      title: "Anne Marie",
-      avatar: convesionImg2,
-      description: "Awesome work, can you…",
-    },
-    {
-      title: "Ivan",
-      avatar: convesionImg3,
-      description: "About files I can…",
-    },
-    {
-      title: "Peterson",
-      avatar: convesionImg4,
-      description: "Have a great afternoon…",
-    },
-    {
-      title: "Nick Daniel",
-      avatar: convesionImg5,
-      description: "Hi! I need more information…",
-    },
-  ];
+  const data = listAdmin.map((item, index) => {
+    return {
+      key: index,
+      title: item.userName,
+      avatar: item.image,
+      description: item.email,
+    };
+  });
+
 
   const project = [
     {
@@ -146,6 +159,16 @@ function About() {
     },
   ];
 
+  function formatPhoneNumber(phoneNumber) {
+    if (phoneNumber.length === 10) {
+      return phoneNumber.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+    } else if (phoneNumber.length === 11) {
+      return phoneNumber.replace(/(\d{5})(\d{3})(\d{3})/, '$1 $2 $3');
+    }
+    // Return the original phone number if it doesn't match the expected length
+    return phoneNumber;
+  }
+
   return (
     <>
       <div
@@ -160,11 +183,11 @@ function About() {
           <Row justify="space-between" align="middle" gutter={[24, 0]}>
             <Col span={24} md={12} className="col-info">
               <Avatar.Group>
-                <Avatar size={74} shape="square" src={profilavatar} />
+                <Avatar size={74} shape="square" src={avatar} />
 
                 <div className="avatar-info">
-                  <h4 className="font-semibold m-0">Sarah Jacob</h4>
-                  <p>CEO / Co-Founder</p>
+                  <h4 className="font-semibold m-0">{admin?.fullName}</h4>
+                  <p>{admin?.email}</p>
                 </div>
               </Avatar.Group>
             </Col>
@@ -177,7 +200,7 @@ function About() {
                 justifyContent: "flex-end",
               }}
             >
-              <Radio.Group defaultValue="a">
+              <Radio.Group defaultValue="a" onChange={(e) => {setPart(e.target.value); if (e.target.value === 'c') window.scrollTo({ left: 0, top: document.body.scrollHeight, behavior: "smooth" });}}>
                 <Radio.Button value="a">OVERVIEW</Radio.Button>
                 <Radio.Button value="b">TEAMS</Radio.Button>
                 <Radio.Button value="c">PROJECTS</Radio.Button>
@@ -188,51 +211,9 @@ function About() {
       ></Card>
 
       <Row gutter={[24, 0]}>
-        <Col span={24} md={8} className="mb-24 ">
+        <Col span={24} md={16} className="mb-24">
           <Card
-            bordered={false}
-            className="header-solid h-full"
-            title={<h6 className="font-semibold m-0">Platform Settings</h6>}
-          >
-            <ul className="list settings-list">
-              <li>
-                <h6 className="list-header text-sm text-muted">ACCOUNT</h6>
-              </li>
-              <li>
-                <Switch defaultChecked />
-
-                <span>Email me when someone follows me</span>
-              </li>
-              <li>
-                <Switch />
-                <span>Email me when someone answers me</span>
-              </li>
-              <li>
-                <Switch defaultChecked />
-                <span>Email me when someone mentions me</span>
-              </li>
-              <li>
-                <h6 className="list-header text-sm text-muted m-0">
-                  APPLICATION
-                </h6>
-              </li>
-              <li>
-                <Switch defaultChecked />
-                <span>New launches and projects</span>
-              </li>
-              <li>
-                <Switch defaultChecked />
-                <span>Monthly product updates</span>
-              </li>
-              <li>
-                <Switch defaultChecked />
-                <span>Subscribe to newsletter</span>
-              </li>
-            </ul>
-          </Card>
-        </Col>
-        <Col span={24} md={8} className="mb-24">
-          <Card
+            style={part === 'a' ? { border: "2px solid #1890ff" } : {}}
             bordered={false}
             title={<h6 className="font-semibold m-0">Profile Information</h6>}
             className="header-solid h-full card-profile-information"
@@ -241,21 +222,19 @@ function About() {
           >
             <p className="text-dark">
               {" "}
-              Hi, I’m Alec Thompson, Decisions: If you can’t decide, the answer
-              is no. If two equally difficult paths, choose the one more painful
-              in the short term (pain avoidance is creating an illusion of
-              equality).{" "}
+              This is an official Admin account of Pointify web application. <br />
+              <i style={{ color: 'gray' }}>(the below information is from this account)</i>{" "}
             </p>
             <hr className="my-25" />
-            <Descriptions title="Oliver Liam">
+            <Descriptions title={admin?.userName}>
               <Descriptions.Item label="Full Name" span={3}>
-                Sarah Emily Jacob
+                {admin?.fullName}
               </Descriptions.Item>
               <Descriptions.Item label="Mobile" span={3}>
-                (44) 123 1234 123
+                {admin ? formatPhoneNumber(admin.phone) : null}
               </Descriptions.Item>
               <Descriptions.Item label="Email" span={3}>
-                sarahjacob@mail.com
+                {admin?.email}
               </Descriptions.Item>
               <Descriptions.Item label="Location" span={3}>
                 USA
@@ -276,18 +255,23 @@ function About() {
         </Col>
         <Col span={24} md={8} className="mb-24">
           <Card
+            style={part === 'b' ? { border: "2px solid #1890ff" } : {}}
             bordered={false}
-            title={<h6 className="font-semibold m-0">Conversations</h6>}
+            title={<h6 className="font-semibold m-0">Admin List</h6>}
             className="header-solid h-full"
             bodyStyle={{ paddingTop: 0, paddingBottom: 16 }}
+            extra={
+              <Pagination simple current={current} total={total} onChange={(e) => setCurrent(e)} />
+            }
           >
             <List
               itemLayout="horizontal"
               dataSource={data}
               split={false}
               className="conversations-list"
+              // pagination={{ pageSize: 5, position: ["topRight"]}}
               renderItem={(item) => (
-                <List.Item actions={[<Button type="link">REPLY</Button>]}>
+                <List.Item>
                   <List.Item.Meta
                     avatar={
                       <Avatar shape="square" size={48} src={item.avatar} />
@@ -302,6 +286,7 @@ function About() {
         </Col>
       </Row>
       <Card
+        style={part === 'c' ? { border: "2px solid #1890ff" } : {}}
         bordered={false}
         className="header-solid mb-24"
         title={

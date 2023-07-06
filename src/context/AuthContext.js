@@ -13,10 +13,9 @@ import storageService from "../apis/storage"; // t
 const AuthContext = createContext();
 
 const AuthContextProvider = ({ children }) => {
-    const [user, setUser] = useState({});
+    const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
-    const [invalid, setInvalid] = useState(false); // t
-    const { isLogin, setIsLogin, isLoggingIn, setIsLoggingIn, setId, username, setUsername } = useContext(LoginContext); // t
+    const { isLogin, setIsLogin, admin, setAdmin } = useContext(LoginContext); // t
 
     const googleSignIn = () => {
         const provider = new GoogleAuthProvider();
@@ -36,10 +35,10 @@ const AuthContextProvider = ({ children }) => {
 
     const logout = () => {
         signOut(auth).then(() => {
-            setUser({});
-            setIsLogin(false);
-            storageService.removeAccessToken();
-            setId(null);
+            // storageService.removeAccessToken();
+            setUser(null);
+            // setIsLogin(false);
+            // setAdmin(null);
         }).catch((error) => {
             console.log(error);
         });
@@ -50,53 +49,7 @@ const AuthContextProvider = ({ children }) => {
             if (user) {
                 console.log(user);
                 setUser(user);
-                console.log('authContext login: ', isLogin);
-                console.log('authContext islogging in: ', isLoggingIn);
-                if (!isLoggingIn) {
-                    console.log("User is signed in but not logged in.");
-                    // setIsLogin(false);
-                } else {
-                    console.log("User is signed in and logged in.");
-                    // setIsLogin(true);
-                    authenApi.signIn(user.email).then((res) => {
-                        if (res.data.adminDTO !== null && res.data.partnerDTO === null) {
-                            setIsLogin(true);
-                            setId(res.data.adminDTO.id);
-                            setUsername(res.data.adminDTO.userName);
-                            setInvalid(false);
-                            storageService.setAccessToken(res.data.token);
-                        } else {
-                            setIsLoggingIn(false);
-                            setIsLogin(false);
-                            setInvalid(true);
-                            logout();
-                        }
-                    }
-                    ).catch((error) => {
-                        console.log(error);
-                    });
-                    // setId(user.uid);
-                }
-
-                if (isLogin) {
-                    console.log("User is logged in.");
-                    authenApi.signIn(user.email).then((res) => {
-                        if (res.data.adminDTO !== null && res.data.partnerDTO === null) {
-                            setId(res.data.adminDTO.id);
-                            setUsername(res.data.adminDTO.userName);
-                            console.log('name', username);
-                        } else {
-                            setIsLogin(false);
-                            logout();
-                        }
-                    }
-                    ).catch((error) => {
-                        console.log(error);
-                    });
-                }
             } else {
-                setIsLoggingIn(false);
-                setIsLogin(false);
                 console.log("No user is signed in.");
             }
 
@@ -104,10 +57,10 @@ const AuthContextProvider = ({ children }) => {
                 unsubscribe();
             }
         })
-    }, [isLoggingIn, isLogin]);
+    }, []);
 
     return (
-        <AuthContext.Provider value={{ googleSignIn, logout, user, error, setError, invalid }}>
+        <AuthContext.Provider value={{ googleSignIn, logout, user, error, setError }}>
             {children}
         </AuthContext.Provider>
     );

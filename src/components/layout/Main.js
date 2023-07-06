@@ -12,51 +12,50 @@ import { LoginContext } from "../../context/LoginProvider";
 import storageService from "../../apis/storage";
 import jwtDecode from "jwt-decode";
 import authenApi from "../../apis/authenApi";
+import adminApi from "../../apis/adminApi";
 
 const { Header: AntHeader, Content, Sider } = Layout;
 
 function Main() {
 
-  const { isLogin, setIsLogin, setId, setUsername } = useContext(LoginContext);
-  const { googleSignIn, logout, user, error, setError } = useContext(AuthContext);
+  const { isLogin, setIsLogin, admin, setAdmin } = useContext(LoginContext);
   const navigate = useNavigate();
 
-  const handleSignOut = async () => {
+  const fetchAdminInfo = async () => {
+    console.log('fetchAdminInfo');
     try {
-      await logout();
+      await adminApi.getProfile()
+        .then((res) => {
+          setAdmin(res.data);
+        })
     } catch (error) {
       console.log(error);
     }
-  };
+  }
 
-  let token = storageService.getAccessToken();
   useEffect(() => {
-    if (token !== null) {
+    let token = storageService.getAccessToken();
+    if (token) {
       const tokenDecode = jwtDecode(token);
       const currentTime = Math.floor(Date.now() / 1000);
-
       if (currentTime > tokenDecode.exp) {
         storageService.removeAccessToken();
         setIsLogin(false);
-        // if (user.email) {
-          handleSignOut();
-        // }
+        setAdmin(null);
         navigate('/sign-in');
       }
       else {
-        setIsLogin(true);
-        console.log('hello', user.email);
-        console.log('login main', isLogin);
+        if (isLogin === null && admin === null) {
+          setIsLogin(true);
+          // call api get admin info
+          fetchAdminInfo();
+        }
       }
     } else {
-      // if (user.email) {
-        // console.log('hello', user.email);
-        handleSignOut();
-      // }
-      setIsLogin(false);
+      isLogin && setIsLogin(false);
       navigate('/sign-in');
     }
-  }, [token]);
+  }, []);
 
 
   const [visible, setVisible] = useState(false);
