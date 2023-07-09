@@ -1,44 +1,84 @@
-/*!
-=========================================================
-* Muse Ant Design Dashboard - v1.0.0
-=========================================================
-* Product Page: https://www.creative-tim.com/product/muse-ant-design-dashboard
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/muse-ant-design-dashboard/blob/main/LICENSE.md)
-* Coded by Creative Tim
-=========================================================
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-import { Switch, Route, Redirect } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Home from "./pages/Home";
-import Tables from "./pages/Tables";
-import Billing from "./pages/Billing";
-import Rtl from "./pages/Rtl";
-import Profile from "./pages/Profile";
+import Partners from "./pages/Partners";
+import Customers from "./pages/Customers";
+import MemberShips from "./pages/Memberships";
+import Programs from "./pages/Programs";
+// import Level from "./pages/Level";
+import About from "./pages/About";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Main from "./components/layout/Main";
+import { useContext, useEffect } from "react";
+import { LoginContext } from "./context/LoginProvider";
+import storageService from "./apis/storage";
+import jwtDecode from "jwt-decode";
+import adminApi from "./apis/adminApi";
 import "antd/dist/antd.css";
 import "./assets/styles/main.css";
 import "./assets/styles/responsive.css";
 
 function App() {
+
+  const { setIsLogin, setAdmin, admin } = useContext(LoginContext);
+
+  const fetchAdminInfo = async () => {
+    console.log('fetchAdminInfo');
+    try {
+      await adminApi.getProfile()
+        .then((res) => {
+          setAdmin(res.data);
+        })
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    let token = storageService.getAccessToken();
+    if (token) {
+      const tokenDecode = jwtDecode(token);
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (currentTime > tokenDecode.exp) {
+        storageService.removeAccessToken();
+        setIsLogin(false);
+        setAdmin(null);
+      }
+      else {
+        setIsLogin(true);
+        console.log('app.js');
+        console.log(token);
+        // call api get admin info
+        fetchAdminInfo();
+      }
+    } else {
+      setIsLogin(false);
+    }
+  }, []);
+
   return (
     <div className="App">
-      <Switch>
-        <Route path="/sign-up" exact component={SignUp} />
-        <Route path="/sign-in" exact component={SignIn} />
-        <Main>
-          <Route exact path="/dashboard" component={Home} />
-          <Route exact path="/partners" component={Tables} />
-          <Route exact path="/program" component={Billing} />
-          <Route exact path="/level" component={Tables} />
-          <Route exact path="/about" component={Profile} />
-          {/* <Route exact path="/rtl" component={Rtl} /> */}
-          <Route exact path="/profile" component={Profile} />
-          <Redirect from="*" to="/dashboard" />
-        </Main>
-      </Switch>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/sign-up" exact element={<SignUp />} />
+          <Route path="/sign-in" exact element={<SignIn />} />
+          {/* <Route path="/profile" exact element={<SignIn />} /> */}
+          <Route path="*" exact element={<Main />} >
+            {/* <Route path="dashboard" index element={<Home />} /> */}
+            <Route path="profile" index element={<About />} />
+            <Route path="partners" element={<Partners />} />
+            <Route path="customers?partner=:name" element={<Customers />} />
+            <Route path="customers" element={<Customers />} />
+            <Route path="memberships" element={<MemberShips />} />
+            <Route path="programs?partner=:name" element={<Programs />} />
+            <Route path="programs" element={<Programs />} />
+            {/* <Route path="level" element={<Level />} /> */}
+            {/* <Route path="about" element={<About />} /> */}
+            {/* <Route path="profile" element={<Profile />} /> */}
+            <Route path="/*" element={<Navigate to="/profile" replace />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
