@@ -2,7 +2,7 @@ import {
   Row,
   Col,
   Card,
-  Statistic,
+  Tag,
   Button,
   Pagination,
   Descriptions,
@@ -10,13 +10,16 @@ import {
   Badge,
   Checkbox,
   Input,
-  Select
+  Select,
+  Modal
 } from "antd";
 
 import { useDebounce } from "use-debounce";
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import programApi from "../apis/programApi";
 import partnerApi from "../apis/partnerApi";
+import ProgramDetail from "./ProgramDetail";
 
 import { PlusOutlined, ExclamationOutlined } from "@ant-design/icons";
 import mastercard from "../assets/images/mastercard-logo.png";
@@ -319,20 +322,40 @@ function Programs() {
   const [programs, setPrograms] = useState([]);
   const [current, setCurrent] = useState(1);
   const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState('');
   const [filter, setFilter] = useState([]);
+  const [filterData, setFilterData] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [details, setDetails] = useState(null);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const [name, setName] = useState(searchParams.get('partner'));
+  const defaultFilter = searchParams.get('partner');
+  const [showDetails, setShowDetails] = useState(false);
+  const [detailId, setDetailId] = useState(null);
 
   const fetchPrograms = async () => {
     setLoading(true);
     try {
-      await programApi.getAll({ sort: 'dateUpdated,desc', limit: 4, page: current - 1 })
+      await programApi.getAll({
+        search: search,
+        partner: filterData,
+        sort: selectedValue || 'id,asc',
+        limit: 4,
+        page: current - 1
+      })
         .then((res) => {
           setLoading(false);
           setPrograms(res.data.content);
           setTotal(res.data.totalElements);
+          console.log(res.data.totalElements);
         });
     } catch (error) {
       console.log(error);
+      setLoading(false);
+      setPrograms(null);
+      setTotal(0);
     }
   };
 
@@ -340,7 +363,15 @@ function Programs() {
     try {
       await partnerApi.getAll({ sort: 'id,asc', limit: 1000 })
         .then((res) => {
-          setFilter(res.data.content);
+          const data = res.data.content;
+          setFilter(data);
+          if (name) {
+            const value = data.find((item) => item.fullName === name);
+            // console.log(value);
+            setFilterData(value.id);
+            // setDefaultFilter(name);
+            setName(null);
+          }
         });
     } catch (error) {
       console.log(error);
@@ -350,7 +381,7 @@ function Programs() {
   useEffect(() => {
     fetchPrograms();
     fetchFilter();
-  }, [current]);
+  }, [current, search, selectedValue, filterData]);
 
   const onChange = (checkedValues) => {
     if (checkedValues.length > 0) {
@@ -360,31 +391,71 @@ function Programs() {
     }
   };
 
-  const onSearch = (value) => console.log(value);
+  const onSearch = (value) => setSearch(value);
 
   const options = [];
   for (let i of filter) {
     options.push({
+      id: i.id,
       label: i.fullName,
       value: i.fullName,
     });
   }
-  const handleChange = (value) => {
-    console.log(`selected ${value}`);
+  const handleChange = (...props) => {
+    const ids = props[1].map((obj) => obj.id);
+    const format = ids !== null ? ids.join(',') : null;
+    setFilterData(format);
   };
+
+  // const handleDetail = (id) => {
+  //   try {
+  //     setShowModal(true);
+  //     programApi.getDetail(id)
+  //       .then((res) => {
+  //         setDetails(res.data);
+  //         // console.log(res.data.program.state);
+  //       });
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
+
+  const handleDetail = (id) => {
+    setShowDetails(true);
+    setDetailId(id);
+  }
+
+  const handleBack = () => {
+    setShowDetails(false);
+    setDetailId(null);
+  }
+
+  function formatPhoneNumber(phoneNumber) {
+    if (phoneNumber.length === 10) {
+      return phoneNumber.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+    } else if (phoneNumber.length === 11) {
+      return phoneNumber.replace(/(\d{5})(\d{3})(\d{3})/, '$1 $2 $3');
+    }
+    // Return the original phone number if it doesn't match the expected length
+    return phoneNumber;
+  }
+
+  const timeRemaining = (expDate) => {
+    return expDate ? Math.floor((new Date(expDate) - new Date()) / (1000 * 60 * 60 * 24)) : 0;
+  }
 
   return (
     <>
-      <Row gutter={[24, 0]}>
+      {!showDetails && (<Row gutter={[24, 0]}>
         <Col span={24} md={16} className="mb-24">
           <Card
             className="header-solid h-full"
             bordered={false}
-            title={[<h6 className="font-semibold m-0">Programs Information</h6>]}
+            title={[<h6 style={{ color: 'gray' }} className="font-bold m-0">Programs Information</h6>]}
             bodyStyle={{ paddingTop: "0" }}
             loading={loading}
             extra={
-              <Pagination simple current={current} total={total} onChange={(e) => setCurrent(e)} />
+              <Pagination simple pageSize={4} current={current} total={total} onChange={(e) => setCurrent(e)} />
             }
           >
             <Row gutter={[24, 24]}>
@@ -392,11 +463,20 @@ function Programs() {
                 <Col span={24} key={index}>
                   <Card className="card-billing-info" bordered="false">
                     <div className="col-info">
-                      <Descriptions title={program?.programName}>
+                      <Descriptions title={
+                        <>
+                          <span>
+                            {program?.programName}
+                            {program?.dateUpdated && new Date(program?.dateUpdated) > new Date ?
+                              (<Tag color="green" style={{ marginLeft: 7 }}>{timeRemaining(program?.dateUpdated)} days</Tag>) :
+                              (<Tag color="volcano" style={{ marginLeft: 7 }}>Expired</Tag>)}
+                          </span>
+                        </>
+                      }>
                         <Descriptions.Item label="Date Created" span={3}>
                           {program?.dateCreated}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Last Update" span={3}>
+                        <Descriptions.Item label="Date Expired" span={3}>
                           {program?.dateUpdated}
                         </Descriptions.Item>
                         <Descriptions.Item span={3}>
@@ -409,13 +489,42 @@ function Programs() {
                       </Descriptions>
                     </div>
                     <div className="col-action">
-                      <Button type="link" className="ant-btn-primary">
+                      <Button type="link" onClick={() => handleDetail(program.id)} className="ant-btn-primary">
                         {pencil} DETAIL
                       </Button>
                     </div>
                   </Card>
                 </Col>
               ))}
+
+              {!programs && (
+                <Col span={24} key={1}>
+                  <Card className="card-billing-info" bordered="false">
+                    <div className="col-info">
+                      <Descriptions title='No Data'>
+                        <Descriptions.Item label="Date Created" span={3}>
+                          No Data
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Last Update" span={3}>
+                          No Data
+                        </Descriptions.Item>
+                        <Descriptions.Item span={3}>
+                          <Badge
+                            style={{ color: '#d9d9d9' }}
+                            status='default'
+                            text='INACTIVE'
+                          />
+                        </Descriptions.Item>
+                      </Descriptions>
+                    </div>
+                    <div className="col-action">
+                      <Button type="link" className="ant-btn-primary">
+                        {pencil} NO DATA
+                      </Button>
+                    </div>
+                  </Card>
+                </Col>
+              )}
             </Row>
           </Card>
         </Col>
@@ -456,21 +565,22 @@ function Programs() {
                     <Checkbox value="dateCreated,desc">Recently Created</Checkbox>
                   </div>
                   <div style={{ marginBottom: 20, marginLeft: 50 }}>
-                    <Checkbox value="dateCreated,asc">Previously Created</Checkbox>
+                    <Checkbox value="dateCreated,asc">Formerly Created</Checkbox>
                   </div>
                   <div style={{ marginBottom: 20, marginLeft: 50 }}>
-                    <Checkbox value="dateUpdated,desc">Recently Updated</Checkbox>
+                    <Checkbox value="dateUpdated,desc">Recently Expired</Checkbox>
                   </div>
                   <div style={{ marginLeft: 50 }}>
-                    <Checkbox value="dateUpdated,asc">Previously Updated</Checkbox>
+                    <Checkbox value="dateUpdated,asc">Formerly Expired</Checkbox>
                   </div>
                 </Checkbox.Group>
               </div>
-              <div style={{ marginTop: 20 }}>
+              <div style={{ marginTop: 30 }}>
                 <h6 style={{ color: '#bcbaba', marginBottom: 20 }}>Filter by partner</h6>
                 <div style={{ marginBottom: 20 }}>
                   <Select
                     maxTagCount={20}
+                    defaultValue={defaultFilter ? [defaultFilter] : undefined}
                     size="large"
                     bordered={false}
                     mode="multiple"
@@ -478,7 +588,7 @@ function Programs() {
                     style={{
                       width: '100%',
                     }}
-                    placeholder="Please click here to select"
+                    placeholder="Please click here to select partner(s)..."
                     onChange={handleChange}
                     options={options}
                   />
@@ -487,7 +597,223 @@ function Programs() {
             </div>
           </Card>
         </Col>
-      </Row>
+      </Row>)}
+
+      {showDetails && (<ProgramDetail id={detailId} setShowDetails={handleBack} />)}
+      {/* <Modal
+        visible={showModal}
+        title={
+          <h2 style={{ color: "gray", fontWeight: "bold" }}>{details?.program.programName}</h2>
+        }
+        width={800}
+        // onOk={handleOk}
+        onCancel={() => setShowModal(false)}
+        footer={[
+          <Button key="back" onClick={() => setShowModal(false)}>
+            Return
+          </Button>,
+        ]}
+      >
+        <>
+          <p style={{ color: "gray", marginTop: 10, marginBottom: 10, fontWeight: 'bold' }}>Partner Info</p>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 150,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Partner Name :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.partner?.fullName}</p>
+            </div>
+
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 150,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Partner Email :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.partner?.email}</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 150,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Partner Phone :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.partner?.phone ? formatPhoneNumber(details?.partner?.phone) : ""}</p>
+            </div>
+          </div>
+
+          <p style={{ color: 'gray', marginTop: 10, marginBottom: 10, fontWeight: 'bold' }}>Program Info</p>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 150,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Status :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.program?.state ? 'Active' : 'Inactive'}</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 150,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Members :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.numOfMembers}</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 150,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Date Created :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.program?.dateCreated}</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "center",
+            }}>
+
+            <div
+              style={{
+                width: 150,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Last Update :</p>
+            </div>
+            <div style={{ fontSize: 18 }}>
+              <p>{details?.program?.dateUpdated}</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "stretch",
+              alignItems: "flex-start",
+            }}>
+
+            <div
+              style={{
+                width: 150,
+                marginRight: 30,
+                color: "gray",
+                fontSize: 18,
+                textAlign: "right",
+                marginRight: 30,
+                marginLeft: 10,
+              }}>
+              <p>Description :</p>
+            </div>
+            <div style={{ fontSize: 18, width: 550 }}>
+              <p>{details?.program?.description}</p>
+            </div>
+          </div>
+
+        </>
+      </Modal> */}
     </>
   );
 }

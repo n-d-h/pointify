@@ -62,16 +62,20 @@ function App() {
         <Routes>
           <Route path="/sign-up" exact element={<SignUp />} />
           <Route path="/sign-in" exact element={<SignIn />} />
+          {/* <Route path="/profile" exact element={<SignIn />} /> */}
           <Route path="*" exact element={<Main />} >
-            <Route path="dashboard" index element={<Home />} />
+            {/* <Route path="dashboard" index element={<Home />} /> */}
+            <Route path="profile" index element={<About />} />
             <Route path="partners" element={<Partners />} />
+            <Route path="customers?partner=:name" element={<Customers />} />
             <Route path="customers" element={<Customers />} />
             <Route path="memberships" element={<MemberShips />} />
+            <Route path="programs?partner=:name" element={<Programs />} />
             <Route path="programs" element={<Programs />} />
             {/* <Route path="level" element={<Level />} /> */}
-            <Route path="about" element={<About />} />
+            {/* <Route path="about" element={<About />} /> */}
             {/* <Route path="profile" element={<Profile />} /> */}
-            <Route path="/*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/*" element={<Navigate to="/profile" replace />} />
           </Route>
         </Routes>
       </BrowserRouter>

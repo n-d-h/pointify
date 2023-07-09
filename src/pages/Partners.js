@@ -344,12 +344,13 @@ function Partners() {
   const [openDelete, setOpenDelete] = useState(false);
   const [delId, setDelId] = useState(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [limit, setLimit] = useState(5);
+  const [update, setUpdate] = useState(false);
 
   const fetchPartners = async () => {
     try {
       setLoading(true);
-      await partnerApi.getAll({ search: search, sort: sort, page: page - 1 })
+      await partnerApi.getAll({ search: search, sort: sort, page: page - 1, limit: limit })
         .then((res) => {
           console.log(res.data);
           setLoading(false);
@@ -358,12 +359,15 @@ function Partners() {
         })
     } catch (error) {
       console.log(error);
+      setLoading(false);
+      setListPartners(null);
+      setTotal(0);
     }
   };
 
   useEffect(() => {
     fetchPartners();
-  }, [search, sort, page]);
+  }, [search, sort, page, limit, update]);
 
   const showModal = (id) => {
     setLoadModal(true);
@@ -382,6 +386,7 @@ function Partners() {
   const handleOk = () => {
     setOpen(false);
   };
+
   const handleCancel = () => {
     setOpen(false);
     setOpenDelete(false);
@@ -399,22 +404,38 @@ function Partners() {
     setConfirmLoading(true);
     partnerApi.delete(delId)
       .then((res) => {
-        console.log(res.data);
-        if (res.status === 200) {
+        // console.log(res);
+        if (res.status === 204) {
           popMessage.success("Delete success");
           setConfirmLoading(false);
           setDelId(null);
           setOpenDelete(false);
-          fetchPartners();
+          // fetchPartners();
+          setUpdate(!update);
         }
       }
       ).catch((err) => {
         console.log(err);
+        popMessage.error("Delete failed");
+        setConfirmLoading(false);
+        setDelId(null);
+        setOpenDelete(false);
+        // fetchPartners();
       }
       );
   };
 
-  const data = listPartners.map((partner) => {
+  function formatPhoneNumber(phoneNumber) {
+    if (phoneNumber.length === 10) {
+      return phoneNumber.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+    } else if (phoneNumber.length === 11) {
+      return phoneNumber.replace(/(\d{5})(\d{3})(\d{3})/, '$1 $2 $3');
+    }
+    // Return the original phone number if it doesn't match the expected length
+    return phoneNumber;
+  }
+
+  const data = listPartners?.map((partner) => {
     return {
       key: partner.id,
       name: (
@@ -444,12 +465,12 @@ function Partners() {
 
       status: (
         <>
-          <Tag color={partner.state ? "blue" : "red"}>{partner.state ? "ACTIVE" : "INACTIVE"}</Tag>
+          <Tag color={partner.state ? "green" : "red"}>{partner.state ? "ACTIVE" : "INACTIVE"}</Tag>
         </>
       ),
       phone: (
         <>
-          <span>{partner.phone}</span>
+          <span>{partner?.phone && formatPhoneNumber(partner.phone)}</span>
         </>
       ),
       detail: (
@@ -502,25 +523,25 @@ function Partners() {
                 <Table
                   columns={columns}
                   dataSource={data}
-                  pagination={{ position: ["bottomCenter"], pageSize: 10, current: page, total: total }}
-                  onChange={(pagination) => setPage(pagination.current)}
+                  pagination={{ position: ["bottomCenter"], pageSize: limit, current: page, total: total, showSizeChanger: true, pageSizeOptions: ["5", "10", "20", "50"] }}
+                  onChange={(pagination) => { setPage(pagination.current); setLimit(pagination.pageSize); }}
                   loading={loading}
                   className="ant-border-space"
                 />
               </div>
             </Card>
 
-            <Card
+            {/* <Card
               bordered={false}
               className="criclebox tablespace mb-24"
               title="Customers Table"
               extra={
                 <>
-                  {/* <Radio.Group onChange={onChange} defaultValue="all">
+                  <Radio.Group onChange={onChange} defaultValue="all">
                     <Radio.Button value="all">All</Radio.Button>
                     <Radio.Button value="online">ONLINE</Radio.Button>
                     <Radio.Button value="store">STORES</Radio.Button>
-                  </Radio.Group> */}
+                  </Radio.Group>
                 </>
               }
             >
@@ -543,7 +564,7 @@ function Partners() {
                   </Button>
                 </Upload>
               </div>
-            </Card>
+            </Card> */}
           </Col>
         </Row>
       </div>
@@ -576,14 +597,18 @@ function Partners() {
             Cancel
           </Button>,
           (details?.numOfCustomers > 0 && (
-            <Button key="customer" type="primary" onClick={handleOk}>
-              View Customers
-            </Button>
+            <Link to={`/customers?partner=${details?.partner?.fullName}`}>
+              <Button style={{ marginRight: 10, marginLeft: 10 }} key="customer" type="primary" >
+                View Customers
+              </Button>
+            </Link>
           )),
           (details?.programList?.length > 0 && (
-            <Button key="program" type="primary" onClick={handleOk}>
-              View Programs
-            </Button>
+            <Link to={`/programs?partner=${details?.partner?.fullName}`}>
+              <Button key="program" type="primary">
+                View Programs
+              </Button>
+            </Link>
           )),
         ]}
       >
@@ -606,23 +631,9 @@ function Partners() {
                 marginLeft: 10,
               }}>
               <p>User Name :</p>
-              {/* <p>Full Name :</p>
-            <p>Code :</p>
-            <p>Phone :</p>
-            <p>Email :</p>
-            <p>Customers :</p>
-            <p>Programs :</p>
-            <p>Address :</p> */}
             </div>
             <div style={{ fontSize: 18 }}>
               <p>{details?.partner?.userName}</p>
-              {/* <p>{details?.partner?.fullName}</p>
-            <p>{details?.partner?.code}</p>
-            <p>{details?.partner?.phone}</p>
-            <p>{details?.partner?.email}</p>
-            <p>{details?.partner?.address}</p>
-            <p>{details?.numOfCustomers}</p>
-            <p>{details?.programList && details.programList.length || 0}</p> */}
             </div>
 
           </div>
@@ -695,7 +706,7 @@ function Partners() {
               <p>Phone :</p>
             </div>
             <div style={{ fontSize: 18 }}>
-              <p>{details?.partner?.phone}</p>
+              <p>{details?.partner?.phone ? formatPhoneNumber(details?.partner?.phone) : ''}</p>
             </div>
           </div>
 

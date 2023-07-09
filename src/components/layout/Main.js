@@ -73,11 +73,7 @@ function Main() {
   pathname = pathname.replace("/", "");
 
   useEffect(() => {
-    if (pathname === "rtl") {
-      setPlacement("left");
-    } else {
-      setPlacement("right");
-    }
+    setPlacement("right");
   }, [pathname]);
 
   return (

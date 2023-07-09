@@ -17,9 +17,22 @@ const adminApi = {
         const url = '/admin/api/admins'
         return axiosClient.get(url, { params });
     },
-    update(data) {
-        const url = `/admins/${data.id}`
-        return axiosClient.patch(url, data);
+    update(id, data) {
+        const form = new FormData();
+        form.append('fullName', data.name);
+        form.append('dob', data.dob);
+        data.image !== null && form.append('image', data.image);
+        form.append('phone', data.phone);
+        form.append('status', data.status);
+
+        const url = `admin/api/admins/${id}`;
+        const config = {
+            headers: {
+                'Content-type': 'multipart/form-data',
+            },
+        };
+
+        return axiosClient.put(url, data, config);
     },
     remove(id) {
         const url = `/admins/${id}`

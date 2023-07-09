@@ -196,25 +196,25 @@ function SignIn() {
           </div>
           <div className="header-col header-nav">
             <Menu mode="horizontal" defaultSelectedKeys={["1"]}>
-              <Menu.Item key="1">
+              {/* <Menu.Item key="1">
                 <Link to={`${isLogin ? '/dashboard' : '/sign-in'}`}>
                   {template}
                   <span> Dashboard</span>
                 </Link>
-              </Menu.Item>
-              <Menu.Item key="2">
+              </Menu.Item> */}
+              <Menu.Item key="1">
                 <Link to={`${isLogin ? '/profile' : '/sign-in'}`}>
                   {profile}
                   <span>Profile</span>
                 </Link>
               </Menu.Item>
-              <Menu.Item key="3">
+              {/* <Menu.Item key="2">
                 <Link to="/sign-up">
                   {signup}
                   <span> Sign Up</span>
                 </Link>
-              </Menu.Item>
-              <Menu.Item key="4">
+              </Menu.Item> */}
+              <Menu.Item key="2">
                 <Link to="/sign-in">
                   {signin}
                   <span> Sign In</span>
@@ -227,7 +227,7 @@ function SignIn() {
             </div> */}
         </Header>
         <Content className="signin">
-          <Row gutter={[24, 0]} justify="space-around">
+          <Row gutter={[24, 0]} justify="space-around" align="middle">
             <Col
               xs={{ span: 24, offset: 0 }}
               lg={{ span: 6, offset: 2 }}
@@ -296,7 +296,7 @@ function SignIn() {
           </Menu>
           <p className="copyright">
             {" "}
-            Copyright © 2023 Muse by <a href="#pablo">Creative SWD</a>.{" "}
+            Copyright © 2023 Muse by<a href="#pablo">Creative SWD</a>.{" "}
           </p>
         </Footer>
       </Layout>

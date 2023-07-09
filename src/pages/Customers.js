@@ -4,9 +4,9 @@ import {
     Card,
     Radio,
     Table,
-    Upload,
+    Modal,
     message,
-    Progress,
+    Select,
     Button,
     Avatar,
     Typography,
@@ -15,9 +15,10 @@ import {
 } from "antd";
 
 import { ToTopOutlined, DeleteTwoTone } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import customerApi from "../apis/customerApi";
+import partnerApi from "../apis/partnerApi";
 
 
 // Images
@@ -88,18 +89,33 @@ const columns = [
 
 
 function Customers() {
+    const [open, setOpen] = useState(false);
     const [listCustomers, setListCustomers] = useState([]);
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState("id,asc");
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [visible, setVisible] = useState(false);
+    const [limit, setLimit] = useState(5);
+    const [filter, setFilter] = useState([]);
+    const [filterValue, setFilterValue] = useState('');
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const [name, setName] = useState(searchParams.get('partner'));
+    const [defaultFilter, setDefaultFilter] = useState(searchParams.get('partner'));
+    const [details, setDetails] = useState(null);
+    // const name = searchParams.get('partner');
 
     const fetchCustomers = async () => {
         try {
             setLoading(true);
-            await customerApi.getAll({ search: search, sort: sort, page: page - 1 })
+            await customerApi.getAll({
+                search: search,
+                partner: filterValue,
+                sort: sort,
+                page: page - 1,
+                limit: limit
+            })
                 .then((res) => {
                     console.log(res.data);
                     setLoading(false);
@@ -108,14 +124,59 @@ function Customers() {
                 })
         } catch (error) {
             console.log(error);
+            setLoading(false);
+            setListCustomers(null);
+            setTotal(0);
         }
     };
 
+    const fetchFilter = async () => {
+        try {
+            await partnerApi.getAll({ sort: "id,asc", limit: 1000 })
+                .then((res) => {
+                    const data = res.data.content;
+                    setFilter(data);
+                    if (name) {
+                        const value = data.find((item) => item.fullName === name);
+                        // console.log(value);
+                        setFilterValue(value.id);
+                        // setDefaultFilter(name);
+                        setName(null);
+                    }
+                })
+        } catch (error) {
+            console.log(error);
+            setFilter([]);
+        }
+    }
+
     useEffect(() => {
         fetchCustomers();
-    }, [search, sort, page]);
+        fetchFilter();
+    }, [search, sort, page, limit, filterValue]);
 
-    const data = listCustomers.map((customer) => {
+
+    function formatPhoneNumber(phoneNumber) {
+        if (phoneNumber.length === 10) {
+            return phoneNumber.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+        } else if (phoneNumber.length === 11) {
+            return phoneNumber.replace(/(\d{5})(\d{3})(\d{3})/, '$1 $2 $3');
+        }
+        // Return the original phone number if it doesn't match the expected length
+        return phoneNumber;
+    }
+
+    const showModal = (id) => {
+        setOpen(true);
+        customerApi.getDetails(id)
+            .then((res) => {
+                setDetails(res.data);
+            }).catch((err) => {
+                console.log(err);
+            })
+    };
+
+    const data = listCustomers?.map((customer) => {
         return {
             key: customer.id,
             name: (
@@ -125,7 +186,7 @@ function Customers() {
                             className="shape-avatar"
                             shape="square"
                             size={40}
-                            src={face3}
+                            src={customer?.image || face}
                         ></Avatar>
                         <div className="avatar-info">
                             <Title level={5}>{customer.fullName}</Title>
@@ -138,7 +199,7 @@ function Customers() {
                 <>
                     <div className="author-info">
                         <Title level={5}>{customer.email}</Title>
-                        <p>{customer.phone}</p>
+                        <p>{customer.phone && formatPhoneNumber(customer.phone)}</p>
                     </div>
                 </>
             ),
@@ -148,7 +209,7 @@ function Customers() {
                     {/* <Button type="primary" className="tag-primary">
                         {customer.state ? "ACTIVE" : "INACTIVE"}
                     </Button> */}
-                    <Tag color={customer.state ? "blue" : "red"}>{customer.state ? "ACTIVE" : "INACTIVE"}</Tag>
+                    <Tag color={customer.state ? "green" : "red"}>{customer.state ? "ACTIVE" : "INACTIVE"}</Tag>
                     {/* <span>{partner.state}</span> */}
                 </>
             ),
@@ -159,7 +220,7 @@ function Customers() {
             ),
             detail: (
                 <>
-                    <Button style={{ marginRight: 20 }} type="link">View MemberShips</Button>
+                    <Button style={{ marginRight: 20 }} onClick={() => showModal(customer.id)} type="link">View Details</Button>
                 </>
             ),
         }
@@ -170,6 +231,28 @@ function Customers() {
     const onChange = (e) => {
         console.log(`radio checked:${e.target.value}`)
         setSort(e.target.value);
+    };
+
+    const options = [];
+    for (let i of filter) {
+        options.push({
+            id: i.id,
+            label: i.fullName,
+            value: i.fullName,
+        });
+    }
+
+    const handleChange = (...props) => {
+        // console.log(props);
+        const ids = props[1].map((obj) => obj.id);
+        const format = ids !== null ? ids.join(',') : null;
+        // console.log(filterValue);
+        // console.log(format);
+        setFilterValue(format);
+    };
+
+    const handleCancel = () => {
+        setOpen(false);
     };
 
     return (
@@ -183,6 +266,22 @@ function Customers() {
                             title="Customers Table"
                             extra={
                                 <div style={{ display: "flex" }}>
+                                    <div style={{ marginRight: 35, width: 500 }}>
+                                        <Select
+                                            maxTagCount='responsive'
+                                            defaultValue={defaultFilter ? [defaultFilter] : undefined}
+                                            size="large"
+                                            bordered={false}
+                                            mode="multiple"
+                                            allowClear
+                                            style={{
+                                                width: '100%',
+                                            }}
+                                            placeholder="click here to select partner(s)..."
+                                            onChange={handleChange}
+                                            options={options}
+                                        />
+                                    </div>
                                     <div style={{ marginRight: 30 }}>
                                         <Radio.Group onChange={onChange} defaultValue="id,asc">
                                             {/* <Radio.Button value="id,asc">All</Radio.Button> */}
@@ -208,8 +307,8 @@ function Customers() {
                                     columns={columns}
                                     dataSource={data}
                                     loading={loading}
-                                    pagination={{ position: ["bottomCenter"], pageSize: 10, current: page, total: total }}
-                                    onChange={(pagination) => setPage(pagination.current)}
+                                    pagination={{ position: ["bottomCenter"], pageSize: limit, current: page, total: total, showSizeChanger: true, pageSizeOptions: ["5", "10", "20", "50"] }}
+                                    onChange={(pagination) => { setPage(pagination.current); setLimit(pagination.pageSize); }}
                                     className="ant-border-space"
                                 />
                             </div>
@@ -219,6 +318,142 @@ function Customers() {
                     </Col>
                 </Row>
             </div>
+
+            <Modal
+                title={
+                    <h2 style={{ color: "gray", fontWeight: "bold" }}>Customers Details</h2>
+                }
+                visible={open}
+                onCancel={handleCancel}
+                footer={[
+                    <Button key="back" onClick={handleCancel}>
+                        Return
+                    </Button>,
+                ]}
+            >
+                <>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "stretch",
+                            alignItems: "center",
+                        }}>
+
+                        <div
+                            style={{
+                                width: 180,
+                                marginRight: 30,
+                                color: "gray",
+                                fontSize: 18,
+                                textAlign: "right",
+                                marginRight: 30,
+                                marginLeft: 10,
+                            }}> 
+                            <p>Full Name :</p>
+                        </div>
+                        <div style={{ fontSize: 18 }}>
+                            <p>{details?.customer?.fullName}</p>
+                        </div>
+                    </div>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "stretch",
+                            alignItems: "center",
+                        }}>
+
+                        <div
+                            style={{
+                                width: 180,
+                                marginRight: 30,
+                                color: "gray",
+                                fontSize: 18,
+                                textAlign: "right",
+                                marginRight: 30,
+                                marginLeft: 10,
+                            }}>
+                            <p>Email :</p>
+                        </div>
+                        <div style={{ fontSize: 18 }}>
+                            <p>{details?.customer?.email}</p>
+                        </div>
+                    </div>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "stretch",
+                            alignItems: "center",
+                        }}>
+
+                        <div
+                            style={{
+                                width: 180,
+                                marginRight: 30,
+                                color: "gray",
+                                fontSize: 18,
+                                textAlign: "right",
+                                marginRight: 30,
+                                marginLeft: 10,
+                            }}>
+                            <p>Phone :</p>
+                        </div>
+                        <div style={{ fontSize: 18 }}>
+                            <p>{details?.customer?.phone ? formatPhoneNumber(details?.customer?.phone) : ""}</p>
+                        </div>
+                    </div>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "stretch",
+                            alignItems: "center",
+                        }}>
+
+                        <div
+                            style={{
+                                width: 180,
+                                marginRight: 30,
+                                color: "gray",
+                                fontSize: 18,
+                                textAlign: "right",
+                                marginRight: 30,
+                                marginLeft: 10,
+                            }}>
+                            <p>From Partner :</p>
+                        </div>
+                        <div style={{ fontSize: 18 }}>
+                            <p>{details?.customer?.partnerName}</p>
+                        </div>
+                    </div>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "stretch",
+                            alignItems: "center",
+                        }}>
+
+                        <div
+                            style={{
+                                width: 180,
+                                marginRight: 30,
+                                color: "gray",
+                                fontSize: 18,
+                                textAlign: "right",
+                                marginRight: 30,
+                                marginLeft: 10,
+                            }}>
+                            <p>Number of MemberShip :</p>
+                        </div>
+                        <div style={{ fontSize: 18 }}>
+                            <p>{details?.membershipList?.length || 0}</p>
+                        </div>
+                    </div>
+                </>
+            </Modal>
         </>
     );
 }

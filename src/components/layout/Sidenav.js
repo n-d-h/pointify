@@ -5,6 +5,8 @@ import logo from "../../assets/images/logo.png";
 
 function Sidenav({ color }) {
   const { pathname } = useLocation();
+  // console.log(pathname.split("/")[pathname.split("/").length - 1])ư;
+  // const path = pathname.split("/")[pathname.split("/").length - 1];
   const page = pathname.replace("/", "");
 
   const dashboard = [
@@ -156,7 +158,7 @@ function Sidenav({ color }) {
       </div>
       <hr />
       <Menu theme="light" mode="inline">
-        <Menu.Item key="1">
+        {/* <Menu.Item key="1">
           <NavLink to="/dashboard">
             <span
               className="icon"
@@ -167,6 +169,19 @@ function Sidenav({ color }) {
               {dashboard}
             </span>
             <span className="label">Dashboard</span>
+          </NavLink>
+        </Menu.Item> */}
+        <Menu.Item key="1">
+          <NavLink to="/profile">
+            <span
+              className="icon"
+              style={{
+                background: page === "profile" ? color : "",
+              }}
+            >
+              {dashboard}
+            </span>
+            <span className="label">Profile</span>
           </NavLink>
         </Menu.Item>
         <Menu.Item key="2">
@@ -234,7 +249,7 @@ function Sidenav({ color }) {
             <span className="label">Level</span>
           </NavLink>
         </Menu.Item> */}
-        <Menu.Item key="6">
+        {/* <Menu.Item key="6">
           <NavLink to="/about">
             <span
               className="icon"
@@ -246,7 +261,7 @@ function Sidenav({ color }) {
             </span>
             <span className="label">About</span>
           </NavLink>
-        </Menu.Item>
+        </Menu.Item> */}
         {/* <Menu.Item key="4">
           <NavLink to="/rtl">
             <span
@@ -261,7 +276,7 @@ function Sidenav({ color }) {
           </NavLink>
         </Menu.Item> */}
         <Menu.Item className="menu-item-header" key="7">
-          Account Pages
+          Login Pages
         </Menu.Item>
         {/* <Menu.Item key="5">
           <NavLink to="/profile">
@@ -282,12 +297,12 @@ function Sidenav({ color }) {
             <span className="label">Sign In</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="9">
+        {/* <Menu.Item key="9">
           <NavLink to="/sign-up">
             <span className="icon">{signup}</span>
             <span className="label">Sign Up</span>
           </NavLink>
-        </Menu.Item>
+        </Menu.Item> */}
       </Menu>
       {/* <div className="aside-footer">
         <div
