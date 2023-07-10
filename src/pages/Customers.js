@@ -221,6 +221,7 @@ function Customers() {
             detail: (
                 <>
                     <Button style={{ marginRight: 20 }} onClick={() => showModal(customer.id)} type="link">View Details</Button>
+                    {/* <u style={{ marginRight: 20, color: "#1890ff", cursor: "pointer" }} onClick={() => showModal(customer.id)}>View Details</u> */}
                 </>
             ),
         }

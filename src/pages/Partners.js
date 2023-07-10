@@ -476,6 +476,7 @@ function Partners() {
       detail: (
         <>
           <u style={{ marginRight: 100, color: "#1890ff", cursor: "pointer" }} onClick={() => showModal(partner.id)}>View</u>
+          {/* <Button style={{ marginRight: 70 }} onClick={() => showModal(partner.id)} type="link">View</Button> */}
           <DeleteTwoTone twoToneColor="#eb2f96" onClick={() => showModalDel(partner.id)} />
         </>
       ),

@@ -1,4 +1,4 @@
-import { Table, Row, Col, Button, notification, Tag, Typography, Card } from 'antd';
+import { Table, Row, Col, Button, notification, Tag, Typography, Card, Avatar } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from "react-router-dom";
 import programApi from '../apis/programApi';
@@ -70,17 +70,18 @@ function ProgramDetail({ id, setShowDetails }) {
         {
             fullName: (
                 <>
-                    <Title level={5}>{partner.fullName}</Title>
-                </>
-            ),
-            code: (
-                <>
-                    <span>{partner.code}</span>
-                </>
-            ),
-            partner: (
-                <>
-                    <span>{partner.partnerName}</span>
+                    {/* <Title level={5}>{partner.fullName}</Title> */}
+                    <Avatar.Group>
+                        <Avatar
+                            className="shape-avatar"
+                            shape="square"
+                            size={40}
+                            src={partner.image}
+                        ></Avatar>
+                        <div>
+                            <Title level={5}>{partner.fullName}</Title>
+                        </div>
+                    </Avatar.Group>{" "}
                 </>
             ),
             contact: (
@@ -89,6 +90,11 @@ function ProgramDetail({ id, setShowDetails }) {
                         <Title level={5}>{partner.email}</Title>
                         <p>{partner.phone ? formatPhoneNumber(partner.phone) : ''}</p>
                     </div>
+                </>
+            ),
+            code: (
+                <>
+                    <span>{partner.code}</span>
                 </>
             ),
             address: (
@@ -197,7 +203,7 @@ function ProgramDetail({ id, setShowDetails }) {
                                 </div>
                                 {proramDetails.dateUpdated && new Date(proramDetails.dateUpdated) < new Date() ? (
                                     <>
-                                        <span  style={{ marginLeft: 20 }}>
+                                        <span style={{ marginLeft: 20 }}>
                                             {proramDetails.programName}
                                             <Tag
                                                 style={{ marginLeft: 7 }}
@@ -211,7 +217,7 @@ function ProgramDetail({ id, setShowDetails }) {
                                         </span>
                                     </>
                                 ) : (
-                                    <span  style={{ marginLeft: 20 }}>
+                                    <span style={{ marginLeft: 20 }}>
                                         {proramDetails.programName}
                                         <Tag
                                             style={{ marginLeft: 7 }}
@@ -236,18 +242,18 @@ function ProgramDetail({ id, setShowDetails }) {
                                 <div style={{ width: 130, marginBottom: 3, color: '#b4afaf' }}>
                                     <label className='card-program-details-label'>Created Date:</label>
                                 </div>
-                                <span  style={{ marginLeft: 20 }}>{proramDetails.dateCreated}</span>
+                                <span style={{ marginLeft: 20 }}>{proramDetails.dateCreated}</span>
                             </div>
                             <div style={{ marginBottom: 10 }} className='card-program-details'>
                                 <div style={{ width: 130, marginBottom: 3, color: '#b4afaf' }}>
                                     <label className='card-program-details-label'>Expired Date:</label>
                                 </div>
-                                <span  style={{ marginLeft: 20 }}>{proramDetails.dateUpdated}</span>
+                                <span style={{ marginLeft: 20 }}>{proramDetails.dateUpdated}</span>
                             </div>
                             <div style={{ marginBottom: 10 }} className='card-program-details-description'>
                                 <label style={{ color: '#b4afaf' }} className='card-program-details-label'>Description:</label>
                                 <div style={{ marginTop: 3 }}>
-                                    <span  style={{ marginLeft: 20 }}>{proramDetails.description}</span>
+                                    <span style={{ marginLeft: 20 }}>{proramDetails.description}</span>
                                 </div>
                             </div>
                             <hr className="my-25" />
