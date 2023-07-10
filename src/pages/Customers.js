@@ -348,7 +348,6 @@ function Customers() {
                                 color: "gray",
                                 fontSize: 18,
                                 textAlign: "right",
-                                marginRight: 30,
                                 marginLeft: 10,
                             }}> 
                             <p>Full Name :</p>
@@ -372,7 +371,6 @@ function Customers() {
                                 color: "gray",
                                 fontSize: 18,
                                 textAlign: "right",
-                                marginRight: 30,
                                 marginLeft: 10,
                             }}>
                             <p>Email :</p>
@@ -396,7 +394,6 @@ function Customers() {
                                 color: "gray",
                                 fontSize: 18,
                                 textAlign: "right",
-                                marginRight: 30,
                                 marginLeft: 10,
                             }}>
                             <p>Phone :</p>
@@ -416,7 +413,6 @@ function Customers() {
                         <div
                             style={{
                                 width: 180,
-                                marginRight: 30,
                                 color: "gray",
                                 fontSize: 18,
                                 textAlign: "right",
@@ -440,7 +436,6 @@ function Customers() {
                         <div
                             style={{
                                 width: 180,
-                                marginRight: 30,
                                 color: "gray",
                                 fontSize: 18,
                                 textAlign: "right",

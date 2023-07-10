@@ -624,7 +624,6 @@ function Partners() {
             <div
               style={{
                 width: 80,
-                marginRight: 30,
                 color: "gray",
                 fontSize: 18,
                 textAlign: "right",
@@ -653,7 +652,6 @@ function Partners() {
                 color: "gray",
                 fontSize: 18,
                 textAlign: "right",
-                marginRight: 30,
                 marginLeft: 10,
               }}>
               <p>Full Name :</p>
@@ -677,7 +675,6 @@ function Partners() {
                 color: "gray",
                 fontSize: 18,
                 textAlign: "right",
-                marginRight: 30,
                 marginLeft: 10,
               }}>
               <p>Code :</p>
@@ -701,7 +698,6 @@ function Partners() {
                 color: "gray",
                 fontSize: 18,
                 textAlign: "right",
-                marginRight: 30,
                 marginLeft: 10,
               }}>
               <p>Phone :</p>
@@ -725,7 +721,6 @@ function Partners() {
                 color: "gray",
                 fontSize: 18,
                 textAlign: "right",
-                marginRight: 30,
                 marginLeft: 10,
               }}>
               <p>Email :</p>
@@ -749,7 +744,6 @@ function Partners() {
                 color: "gray",
                 fontSize: 18,
                 textAlign: "right",
-                marginRight: 30,
                 marginLeft: 10,
               }}>
               <p style={{ width: 80 }}>Address :</p>
@@ -769,7 +763,6 @@ function Partners() {
             <div
               style={{
                 width: 80,
-                marginRight: 30,
                 color: "gray",
                 fontSize: 18,
                 textAlign: "right",
@@ -793,7 +786,6 @@ function Partners() {
             <div
               style={{
                 width: 80,
-                marginRight: 30,
                 color: "gray",
                 fontSize: 18,
                 textAlign: "right",
