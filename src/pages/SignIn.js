@@ -129,6 +129,7 @@ function SignIn() {
           setIsSignedIn(true);
           setAdmin(res.data.adminDTO);
           storageService.setAccessToken(res.data.token);
+          navigate("/profile");
         } else {
           setInvalid(true);
         }

@@ -221,17 +221,24 @@ function About() {
       status: admin?.status,
     }
 
-    adminApi.update(admin?.id, data)
-      .then((res) => {
-        if (res.status === 200) {
-          setPencilFill(!pencilFill);
-          fetchAdmin();
-          message.success('Update successfully!');
-        }
-      }).catch((error) => {
-        console.log(error);
-        message.error('Update failed!');
-      })
+    if (data.fullName === '' || data.phone === '' || data.dob === '') {
+      message.error('Please fill in all fields!');
+      return;
+    }
+    else {
+      adminApi.update(admin?.id, data)
+        .then((res) => {
+          if (res.status === 200) {
+            setPencilFill(!pencilFill);
+            fetchAdmin();
+            message.success('Update successfully!');
+          }
+        }).catch((error) => {
+          console.log(error);
+          message.error('Update failed!');
+        })
+    }
+
   }
 
 
@@ -315,17 +322,17 @@ function About() {
                     <p style={{ display: "inline-block" }}>{admin?.userName}</p>
                   </>}>
                   <Descriptions.Item label="Full Name" span={3}>
-                    {pencilFill ? <Input ref={refName} style={{ width: 300 }} defaultValue={admin?.fullName} /> : admin?.fullName}
+                    {pencilFill ? <Input maxLength={50} ref={refName} style={{ width: 300 }} defaultValue={admin?.fullName} /> : admin?.fullName}
                   </Descriptions.Item>
                   <Descriptions.Item label="Mobile" span={3}>
-                    {pencilFill ? <Input type="number" ref={refPhone} style={{ width: 300 }} defaultValue={admin?.phone} /> : admin ? formatPhoneNumber(admin.phone) : null}
+                    {pencilFill ? <Input maxLength={1} type="number" ref={refPhone} style={{ width: 300 }} defaultValue={admin?.phone} /> : admin ? formatPhoneNumber(admin.phone) : null}
                     {/* {admin ? formatPhoneNumber(admin.phone) : null} */}
                   </Descriptions.Item>
                   <Descriptions.Item label="Email" span={3}>
                     {admin?.email}
                   </Descriptions.Item>
                   <Descriptions.Item label="Birth day" span={3}>
-                    {pencilFill ? <DatePicker defaultValue={moment(dob, dateFormat)} onChange={HandleDate} /> : admin?.dob}
+                    {pencilFill ? <DatePicker required defaultValue={moment(dob, dateFormat)} onChange={HandleDate} /> : admin?.dob}
                   </Descriptions.Item>
                   <Descriptions.Item label="Social" span={3}>
                     <a href="#pablo" className="mx-5 px-5">
